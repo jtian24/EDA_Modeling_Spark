@@ -190,24 +190,15 @@ class optimal_eda_glm:
                 return 0
             return 1
 
-        is_null_udf = udf(check_null, IntegerType())
-        
+        is_null_udf = udf(check_null, IntegerType())       
         null_category_freq = self.df_samp.select(*(is_null_udf(col(c)).alias(c) for c in self.stringtype_list))
-        
-        null_category_freq_sum = null_category_freq.agg({column : "sum" for column in null_category_freq.columns}).collect()
-        
-        null_category_freq_sum_df = self.sc.parallelize(null_category_freq_sum).toDF()
-        
-        null_category_freq_sum_df = null_category_freq_sum_df.select([col(f).alias(f[4:-1]) for f in null_category_freq_sum_df.columns])
-        
-        null_category_freq_sum_df = null_category_freq_sum_df.withColumn("row_cnt", lit(self.df_samp_total_cnt))
-        
+        null_category_freq_sum = null_category_freq.agg({column : "sum" for column in null_category_freq.columns}).collect()        
+        null_category_freq_sum_df = self.sc.parallelize(null_category_freq_sum).toDF()        
+        null_category_freq_sum_df = null_category_freq_sum_df.select([col(f).alias(f[4:-1]) for f in null_category_freq_sum_df.columns])       
+        null_category_freq_sum_df = null_category_freq_sum_df.withColumn("row_cnt", lit(self.df_samp_total_cnt)) 
         null_category_freq_pct = null_category_freq_sum_df.select([(col(f)/col("row_cnt")).alias(f) for f in self.stringtype_list])
-        
         null_category_freq_pct = null_category_freq_pct.toPandas().T
-        
         null_category_freq_pct.rename(index=str, columns={0: 'null_pct'}, inplace = True)
-        
         null_category_freq_pct['data_type'] = null_category_freq_pct.apply(lambda x: self.dtype_dict[x.name], axis=1)
         
         return null_category_freq_pct
@@ -217,8 +208,7 @@ class optimal_eda_glm:
     
     def numerical_percent(self):
         
-        def check_number(s):
-            
+        def check_number(s): 
             if not s == None:
                 try:
                     float(s)
@@ -230,28 +220,18 @@ class optimal_eda_glm:
                     unicodedata.numeric(s)
                     return 1
                 except (TypeError, ValueError):
-                    pass
-            
+                    pass 
             return 0
  
         is_digit_udf = udf(check_number, IntegerType())
-    
         num_category_freq = self.df_samp.select(*(is_digit_udf(col(c)).alias(c) for c in self.stringtype_list))
-        
         num_category_freq_sum = num_category_freq.agg({column : "sum" for column in num_category_freq.columns}).collect()
-        
         num_category_freq_sum_df = self.sc.parallelize(num_category_freq_sum).toDF()
-        
         num_category_freq_sum_df = num_category_freq_sum_df.select(*(col(f).alias(f[4:-1]) for f in num_category_freq_sum_df.columns))
-        
         num_category_freq_sum_df = num_category_freq_sum_df.withColumn("row_cnt", lit(self.df_samp_total_cnt))
-        
         num_category_freq_pct = num_category_freq_sum_df.select(*((col(f)/col("row_cnt")).alias(f) for f in self.stringtype_list))
-        
-        num_category_freq_pct = num_category_freq_pct.toPandas().T
-        
+        num_category_freq_pct = num_category_freq_pct.toPandas().T 
         num_category_freq_pct.rename(index=str, columns={0: 'numerical_pct'}, inplace = True)
-        
         num_category_freq_pct['data_type'] = num_category_freq_pct.apply(lambda x: self.dtype_dict[x.name], axis=1)
         
         return num_category_freq_pct
@@ -267,31 +247,20 @@ class optimal_eda_glm:
     def variable_type_identify(self, true_num_pct_threshold):
 
         str_var_null_freq = self.null_percent()
-        
         str_var_num_freq =  self.numerical_percent()
-        
         str_var_null_num_var_freq = pd.merge(str_var_null_freq, str_var_num_freq, left_index=True, right_index = True)
-        
         str_var_null_num_var_freq = str_var_null_num_var_freq.drop(['data_type_y'], axis = 1)
-        
         str_var_null_num_var_freq = str_var_null_num_var_freq.rename({'data_type_x':'data_type'}, axis = 1)
-        
         str_var_null_num_var_freq['total_percent'] = 1.0
-        
         str_var_null_num_var_freq['true_num_pct'] = str_var_null_num_var_freq.apply(lambda row: row['numerical_pct']/(row['total_percent'] - row['null_pct']) if row['total_percent'] - row['null_pct'] > 0 else row['numerical_pct'], axis = 1)
-        
         numerical_attributes = [str(x) for x in str_var_null_num_var_freq[str_var_null_num_var_freq['true_num_pct'] >= true_num_pct_threshold].index]
-        
         self.all_null_attributes = [str(x) for x in str_var_null_num_var_freq[str_var_null_num_var_freq['null_pct'] == 1].index]
         string_attributes = []
 
         
-        for x in self.stringtype_list:
-            
-            if x not in numerical_attributes + self.all_null_attributes:
-                
+        for x in self.stringtype_list: 
+            if x not in numerical_attributes + self.all_null_attributes: 
                 unique_char_value_set = self.df_samp.select(x).distinct().rdd.map(lambda r: r[0]).collect()
-                
                 if unique_char_value_set == 1:
                     self.constant_attributes.append(x)
                 else:
@@ -304,13 +273,9 @@ class optimal_eda_glm:
             self.df_samp = self.df_samp.withColumn(var, self.df_samp[var].cast(DoubleType()))
         
         self.categorical_attr = string_attributes
-        
         self.numerical_attr = numerical_attributes + self.numericaltype_list
-        
         self.h2o_df = self.hc.as_h2o_frame(self.df)
-        
         self.h2o_df_samp = self.hc.as_h2o_frame(self.df_samp)
-        
         self.datatype_dict = {'numerical_attributes:': self.numerical_attr, 'categorical_attributes:': self.categorical_attr, 'constant attributes :': self.constant_attributes}
             
          
@@ -348,16 +313,12 @@ class optimal_eda_glm:
                 return False
   
         all_num_h2o_df = self.h2o_df_samp[:, numerical_attr_names]
-    
         df_quantile = all_num_h2o_df[:,numerical_attr_names[0]].quantile(prob = np.arange(0,1,increment).tolist()).drop('Probs').set_names([numerical_attr_names[0]])
         
-
         for attr in numerical_attr_names[1:]:
             another_quantile = all_num_h2o_df[:,attr].quantile(prob = np.arange(0,1,increment).tolist()).drop('Probs').set_names([attr])
             df_quantile = df_quantile.cbind(another_quantile)
             
-        
-
         pd_df_quantile = df_quantile.as_data_frame()
         
         num_attr_quantile_dict = {}
@@ -394,13 +355,9 @@ class optimal_eda_glm:
             cat_attr_freq = h2o_df.group_by(catfeat).count().get_frame().as_data_frame()
             #sort columes of the categorical class frequency from highest to lowest 
             catfeat_class_dict.setdefault(catfeat)
-            
             catfeat_class_dict[catfeat] = []
-            
             total_cnt = cat_attr_freq['nrow'].sum()
-            
             cat_attr_freq['percent'] = cat_attr_freq.apply(lambda row: row['nrow']/float(total_cnt), axis = 1)
-            
             cat_attr_freq = cat_attr_freq.sort_values('nrow', ascending = False).reset_index(drop = True)
             
             max_index = 0
@@ -410,21 +367,16 @@ class optimal_eda_glm:
                 total_pct = total_pct + cat_attr_freq.loc[max_index, 'percent']
                 catfeat_class_dict[catfeat].append(cat_attr_freq.loc[max_index, catfeat])
                 max_index = max_index + 1
-                
-
-        
+  
         self.cat_var_class_dict = catfeat_class_dict
         
         #replace categorical variables' element that ranks lower than max_nbr_of_class or contribute less than 1 - max_class_percent to total population
         def simplify_categorical_udf(catfeat_class_dict):
             return udf(lambda var, var_name: var if var in catfeat_class_dict[var_name] else 'other', StringType())
         
-        for cat_attr in self.cat_var_class_dict:
-            
-            capped_cat_var = cat_attr + '_capped'
-            
+        for cat_attr in self.cat_var_class_dict:  
+            capped_cat_var = cat_attr + '_capped' 
             self.df_samp = self.df_samp.withColumn(capped_cat_var, simplify_categorical_udf(self.cat_var_class_dict)(col(cat_attr).alias('var'), lit(cat_attr).alias('var_name')))
-            
             self.binned_categorical_attr.append(capped_cat_var)
 
         
@@ -443,14 +395,11 @@ class optimal_eda_glm:
             categorical_attr = self.categorical_attr
             
         self.selected_numerical_attr = numerical_attr
-        
         self.selected_categorical_attr = categorical_attr
             
         #define continuous and categorical dataframe    
         continuous_df_col_list = []
-        
-        cat_df_col_list = []
-        
+        cat_df_col_list = [] 
         df_col_list = []
         
         def bucketize(var,  var_name, quantile_dict):
@@ -477,8 +426,6 @@ class optimal_eda_glm:
 
                     
             return str(lower_bound) + ' - ' + str(higher_bound)
-                    
-                
 
         def find_segment_udf(quantile_dict):
             return udf(lambda var, var_name: bucketize(var, var_name, quantile_dict), StringType())
@@ -487,24 +434,17 @@ class optimal_eda_glm:
         def simplify_categorical_udf(catfeat_class_dict):
             return udf(lambda var, var_name: var if var in catfeat_class_dict[var_name] else 'other', StringType())
         
-
-        segmented_var_dict = {}
-        
-        segmented_var_list = []
-        
-        
+        segmented_var_dict = {} 
+        segmented_var_list = []        
         self.df_samp = self.df_samp.withColumn("id", monotonically_increasing_id())
-        
-       
+         
         if len(numerical_attr) > 0:
             for attr in numerical_attr:
                 if attr not in ['lexid', self.target_var, 'Prob']:
                     segmented_var_dict.setdefault(attr)
                     segmented_var_dict[attr] = self.df_samp.select([find_segment_udf(self.num_var_quantile_dict)(col(attr).alias('var'),lit(attr).alias('var_name')).alias('segment'), col(self.target_var).alias('target_var')]).groupBy('segment').agg(F.sum('target_var').alias('nonzero_cnt'), F.count('*').alias('total_count')).sort(['segment']).toPandas()
                     segmented_var_dict[attr]['var_name'] = attr
-
-                    
-                    
+                
         cat_start_time = time.time()        
 
         if len(categorical_attr) > 0:
@@ -515,29 +455,19 @@ class optimal_eda_glm:
                     segmented_var_dict[attr]['var_name'] = attr
 
         
-        freq_df_list = []
-        
+        freq_df_list = [] 
         for df_key in segmented_var_dict.keys():
             freq_df_list.append(segmented_var_dict[df_key])
             
         freq_tbl = pd.concat(freq_df_list, ignore_index=True)
-        
         freq_tbl['zero_cnt'] = freq_tbl.apply(lambda row: row['total_count'] - row['nonzero_cnt'], axis = 1)
-        
         freq_tbl['good_total'] = self.good_tot_cnt
-        
         freq_tbl['bad_total'] = self.bad_tot_cnt
-        
         freq_tbl['good_pct'] = freq_tbl.apply(lambda row: float(row['nonzero_cnt'] + 0.5)/(row['good_total'] + 0.5), axis = 1)
-        
         freq_tbl['bad_pct'] = freq_tbl.apply(lambda row: float(row['zero_cnt'] + 0.5)/(row['bad_total'] + 0.5), axis = 1)
-        
         freq_tbl['WOE'] = freq_tbl.apply(lambda row: float(row['good_pct'])/row['bad_pct'], axis = 1)
-        
         freq_tbl['IV'] = freq_tbl.apply(lambda row: (row['good_pct'] - row['bad_pct'])*row['WOE'], axis = 1)
-        
         agg_freq_tbl = freq_tbl.groupby(['var_name']).agg({'IV': 'sum'}).reset_index().rename(index=str, columns={"IV": "IV_sum"}).sort_values('IV_sum', ascending = False)
-        
         freq_tbl = freq_tbl.join(agg_freq_tbl.set_index('var_name'), on = 'var_name')
         
         self.init_woe_iv_info = freq_tbl
@@ -1183,14 +1113,10 @@ class optimal_eda_glm:
             self.h2o_train[target_var] = self.h2o_train[target_var].asfactor()
             self.h2o_test[target_var] = self.h2o_test[target_var].asfactor()
             performance_metric = 'AUC'
-            
-            
+    
         train = self.h2o_train
-        
         test = self.h2o_test
 
-    
-        
         predictors = [var for var in train.columns if not var in excluded_var_list+ [target_var]]
 
         if elmnet_enabled == True:
@@ -1204,17 +1130,10 @@ class optimal_eda_glm:
 
             asymp_g = H2OGridSearch(H2OGeneralizedLinearEstimator(family= family, lambda_search = True, standardize = True,lambda_min_ratio = 0.01, nfolds = 5), hyper_parameters, search_criteria=search_criteria)
             asymp_g.train(x=predictors,y=target_var, training_frame=train, validation_frame = test)
-
-
             sorted_asymp_g = asymp_g.get_grid(performance_metric, decreasing = True)
-        
             best_asymp_g = sorted_asymp_g.models[0]
-
-        else:
-    
-        
+        else:               
             best_asymp_g = H2OGeneralizedLinearEstimator(family = family, compute_p_values = True, remove_collinear_columns = True, standardize = True, missing_values_handling = "skip", lambda_ = 0, solver='IRLSM', nfolds = 10)
-        
             best_asymp_g.train(x = predictors, y = target_var, training_frame = train, validation_frame = test)
         
         finalized_glm, finalized_coef_table = self.iterative_model_selection(best_asymp_g,  excluded_var_list, linear_reg)
@@ -1228,64 +1147,42 @@ class optimal_eda_glm:
     # Automate the EDA, initial variable binning, binning optimization, original dataset transformation with encoding & final GLM modeling
     
     def General_Linear_Model(self, data_path = '', infile_format = '', sep = ',', df = None, target_var = None, linear_reg = False, increment_percent = 0.05,  create_sample = False, sample_cnt = 50000, train_ratio = 0.7, test_ratio = 0.15, preselected_attributes = []):
-        
-        
+
         self.import_data(data_path = data_path, infile_format = infile_format, sep = sep, df = df,  target_var = target_var, create_sample = create_sample, sample_cnt = sample_cnt, increment_percent = increment_percent, linear_reg = linear_reg)
         
         if len(preselected_attributes) != 0:
             numerical_attributes = [ var for var in self.datatype_dict['numerical_attributes'] if var in preselected_attributes]
-            categorical_attributes = [var for var in self.datatype_dict['categorical_attributes'] if var in preselected_attributes]
-            
-        else:
-            
+            categorical_attributes = [var for var in self.datatype_dict['categorical_attributes'] if var in preselected_attributes]      
+        else: 
             numerical_attributes = self.numerical_attr
             categorical_attributes = self.categorical_attr
             
             
         if linear_reg == False:
-            
             self.init_woe_iv(numerical_attr = numerical_attributes, categorical_attr = categorical_attributes)
-        
             self.update_iv_with_new_bin(p_threshold = 0.05, sub_population_pct = 0.05, selected_attributes = preselected_attributes)
-          
             self.transform_original_data(train_ratio = train_ratio,  var_to_transform = preselected_attributes)
-            
         else:
-            
             self.init_r_square(numerical_attr = numerical_attributes, categorical_attr = categorical_attributes, excluded_var = [])
-            
             self.update_r_square_with_new_bin(p_threshold = 0.05, sub_population_pct = 0.05, selected_attributes = preselected_attributes)
-            
             self.transform_original_data(train_ratio = train_ratio, var_to_transform = preselected_attributes)
-            
-            
-            
-            
-            
-        
+
         self.optimal_glm_tuning(excluded_var_list = [], linear_reg = linear_reg)
         
         return self.optimal_glm, self.optimal_coef_tbl
-        
-        
-        
-        
+
     # alternative method to create benchmark for optimal performance through hyper-parameter tunned GBM model building
     
     def GBM_model_eda(self, file_path, target_var,excluded_var_list = [],  linear_reg = True,  train_ratio = 0.8, top_n_var = 50):
 
         self.h2o_df = h2o.import_file(path = file_path)
-    
         response = target_var
         predictors = [var for var in h2o_df.columns if var not in list([response] + excluded_var_list)]
         ## use all other columns (except for the name & the response column ("survived")) as predictors
-    
-  
+
         if linear_reg == True:
             distribution = 'gaussian'
             performance_metric = 'RMSE'
-    
-    
         else:
             distribution = 'bernoulli'
             performance_metric = 'AUC'
