@@ -50,5 +50,5 @@ With Apache Spark and H2O, this module is highly scalable to 'big data' and can 
 
 
 
-![alt text]()
+![alt text](https://raw.githubusercontent.com/jtian24/EDA_Modeling_Spark/master/IV_comparison_plot.png)
 
