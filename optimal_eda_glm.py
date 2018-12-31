@@ -1,6 +1,6 @@
 
 # coding: utf-8
-###############################################################################################################################
+##############################################################################################################################################
 #Author: Jian Tian, last updated 12/2018
 # This Python Module is designed to conduct exploratory data analysis, optimal feature encoding 
 # and binning, as well as variable selection through both univariate analysis and GBM model building.
@@ -11,10 +11,10 @@
 # 3. Optimal Feature Binning Methods (reduce variable complexity for credit scorecard building):
 # Linear Regression: Recursive partitioning (binary tree building) with Welch T Test of segment sample mean
 # Logistic Regression: Recursive partitioning (binary tree building) with Chi-Square Test of Independence of sample proportion
-# 4. Automatic GLM Variable Selection for both Linear / Logistic Regression:
-#    Approach a: Constantly re-fit model with variables that has p value <.05 until all variables left are statistically significant
-#    Approach b: identify optimal set of variables through elastic net search (alpha = [0.01, 0.05, 0.1, 0.2], automatic beta search enabled)
-#################################################################################################################################
+# 4. Automatic GLM Variable Selection for both Linear / Logistic Regression with option to conduct elastic net hyper-parameter tuning:
+#    Step1 : Identify optimal set of variables through GLM elastic net search (alpha = [0.01, 0.05, 0.1, 0.2], automatic beta search enabled)
+#    Step2 : Constantly re-fit model with variables that has p value <.05 until all variables left are statistically significant
+###############################################################################################################################################
 
 
 import time 
