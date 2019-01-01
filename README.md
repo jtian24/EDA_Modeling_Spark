@@ -90,23 +90,42 @@ Below is the coefficients table of the finalized logistic regression model:
 | FLAG_DOCUMENT_3    | 0.310471353  | 0.14874064  | 2.087333711  | 0.03685798  | 0.056076214               | 0.056076214  |
 | CNT_CHILDREN       | -0.627442031 | 0.296022391 | -2.119576253 | 0.034041797 | -0.049089965              | 0.049089965  |
 
-Its performance on the validation dataset with 5 folds cross validation is shown below:
+The logistic regression's performance on the validation dataset is shown below:
 
 ModelMetricsBinomialGLM: glm  
 
-| Performance Metrics         | Value     |
-|-----------------------------|-----------|
-| MSE                         | 0.057     |
-| RMSE                        | 0.239     |
-| LogLoss                     | 0.216     |
-| Null degrees of freedom     | 32927     |
-| Residual degrees of freedom | 32919     |
-| Null deviance               | 15958.195 |
-| Residual deviance           | 14208.194 |
-| AIC                         | 14226.194 |
-| AUC                         | 0.751     |
-| pr_auc                      | 0.193     |
-| Gini                        | 0.502     |
+| Performance Metrics         | Value    |
+|-----------------------------|----------|
+| MSE                         | 0.059    |
+| RMSE                        | 0.242    |
+| LogLoss                     | 0.221    |
+| Null degrees of freedom     | 8172.000 |
+| Residual degrees of freedom | 8164.000 |
+| Null deviance               | 4025.725 |
+| Residual deviance           | 3612.339 |
+| AIC                         | 3630.339 |
+| AUC                         | 0.742    |
+| pr_auc                      | 0.186    |
+| Gini                        | 0.485    |
   
+### GBM modeling performance benchmark
 
+In order to get a sense of how the above GLM model performs, we also utilized GBM_model_eda module to create a hyper-parameter tuned Gradient Boosting Machine model to train the modeling dataset, and tested its performance on the testing dataset.
 
+To our surprise, the GBM model only performs marginally better (GBM AUC of 75.4% vs. GLM AUC of 74.2%) than the logistic regression model on the testing dataset, as shown below:
+
+ModelMetricsBinomial: gbm
+
+| Performance Metrics  | Values |
+|----------------------|--------|
+| MSE                  | 0.068  |
+| RMSE                 | 0.261  |
+| LogLoss              | 0.248  |
+| Mean Per-Class Error | 0.312  |
+| AUC                  | 0.754  |
+| pr_auc               | 0.231  |
+| Gini                 | 0.508  |
+
+Meanwhile, the variable importance score of GBM model also reaffirms our GLM's variable selection for final model, as shown below:
+
+![alt text](https://raw.githubusercontent.com/jtian24/EDA_Modeling_Spark/master/gbm_top20_varimp.png)
