@@ -55,7 +55,7 @@ The downside of less granular variable discretization is the inevitable reductio
 
 However, compared with many binning techniques widely utilized in the industry (such as monotonic binning), this binning method has retained much higher information value of the original variable. Below shows the information value of top 15 attributes' with 20-quantile equal bins vs. with optimized bins.
 
-### Comparison of information value before & after binning optimization of top 15 attributes
+### Comparison of information value before & after binning optimization (Top 15 attributes)
 
 ![alt text](https://raw.githubusercontent.com/jtian24/EDA_Modeling_Spark/master/IV_comparison_plot.png)
 
