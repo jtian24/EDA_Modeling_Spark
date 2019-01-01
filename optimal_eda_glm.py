@@ -182,7 +182,7 @@ class optimal_eda_glm:
             
              
     
-    #Identify percent of spark dataframe column that is NULL TYPE
+ #Identify percent of spark dataframe column that is NULL TYPE
 
     def null_percent(self):
         def check_null(s):
@@ -204,7 +204,7 @@ class optimal_eda_glm:
         return null_category_freq_pct
     
     
-    #Identify percent of spark dataframe column that is numerical type (float, int, double, etc)
+#Identify percent of spark dataframe column that is numerical type (float, int, double, etc)
     
     def numerical_percent(self):
         
@@ -238,11 +238,11 @@ class optimal_eda_glm:
 
 
 
-        # Initialize summary statistics for later calculations
-        # steps to determine if a variable is continuous numerical, null/constant or categorical variable
-        # continous numerical: if variable is numerical => if this columns is double / integer type => continuous numerical attributes
-        # NULL/Constanat attributes: if all elements of this column are constant or None
-        # categorical attributes: if more than 95% of elements are string version of numerical value, then force conversion to numerical   variable, otherwise it is categorical attributes
+# Initialize summary statistics for later calculations
+# steps to determine if a variable is continuous numerical, null/constant or categorical variable
+# continous numerical: if variable is numerical => if this columns is double / integer type => continuous numerical attributes
+# NULL/Constanat attributes: if all elements of this column are constant or None
+# categorical attributes: if more than 95% of elements are string version of numerical value, then force conversion to numerical   variable, otherwise it is categorical attributes
         
     def variable_type_identify(self, true_num_pct_threshold):
 
@@ -287,7 +287,7 @@ class optimal_eda_glm:
     
         
     
-    #identify percentile/increment cut point value of each continuous variable for initial binning
+#identify percentile/increment cut point value of each continuous variable for initial binning
     
     def stack_columns_bucketization(self,  increment, df=None, numerical_attr_names=None, categorical_attr_names=None,  target_var=None):
         if df == None:
@@ -338,7 +338,7 @@ class optimal_eda_glm:
                     
         self.num_var_quantile_dict = updated_attr_quantile
         
-        
+# cap the total number of distinct categories and the minimum  % represented by each categorical variable        
     def cap_cat_var_class(self, max_class_percent, max_nbr_of_class):
 
         df = self.df_samp
@@ -384,7 +384,7 @@ class optimal_eda_glm:
 
        
             
-    #initial binning for WOE and Information Value calculation for each numerical attributes for logistic regression
+#initial binning for WOE and Information Value calculation for each numerical attributes for logistic regression
     
     def init_woe_iv(self, numerical_attr=None, categorical_attr=None):
         #convert df to column stacked long dataset to apply function on them  
@@ -473,12 +473,9 @@ class optimal_eda_glm:
         self.init_woe_iv_info = freq_tbl
 
         return freq_tbl
-    
-    
-    
-    #Hypothesis testing (Chi-Square Test of independence) based recursive partitioning of each sorted numerical varaible into segments that has significant difference in proportion of sample being positive
+ 
+#Hypothesis testing (Chi-Square Test of independence) based recursive partitioning of each sorted numerical varaible into segments that has significant difference in proportion of sample being positive
 
-    
     def recursive_var_bin(self, pd_num_freq_tbl1, total_population_cnt, p_threshold,sub_population_pct, cut_point_list, chi_square_list):
         from scipy.stats import chi2_contingency
         if pd_num_freq_tbl1.empty == True:
@@ -521,7 +518,7 @@ class optimal_eda_glm:
             return    
     
     
-    # update numerical variable's binning to reduce the number of total segments of each numercial variable while retaining as much information value of each numerical variable as possible for later logistic regression
+# update numerical variable's binning to reduce the number of total segments of each numercial variable while retaining as much information value of each numerical variable as possible for later logistic regression
     
     def update_iv_with_new_bin(self, p_threshold, sub_population_pct, selected_attributes=[]):
         
@@ -671,7 +668,7 @@ class optimal_eda_glm:
         return output_iv_df
     
     
-    #initial binning for numerical attributes' mean encoding and varaible R square calculation based on predefined increment value
+ #initial binning for numerical attributes' mean encoding and varaible R square calculation based on predefined increment value
     
     def init_r_square(self, numerical_attr=None, categorical_attr=None, excluded_var=None):
             #convert df to column stacked long dataset to apply function on them  
@@ -763,7 +760,7 @@ class optimal_eda_glm:
 
 
   
-    # Hypothesis testing (Welch T test of sample mean) based recursive partitioning of continuous numerical variable into optimal bins 
+# Hypothesis testing (Welch T test of sample mean) based recursive partitioning of continuous numerical variable into optimal bins 
     
     def LR_recursive_var_bin(self, pd_num_freq_tbl1, target_var_array, p_threshold, sub_population_pct, cut_point_list, t_value_list, p_value_list):
         import math
@@ -821,7 +818,7 @@ class optimal_eda_glm:
         else:
             return
         
-    # update numerical variable's binning to reduce the number of total segments of each numercial variable while retaining as much R square of each numerical variable as much as possible for later linear regression
+# update numerical variable's binning to reduce the number of total segments of each numercial variable while retaining as much R square of each numerical variable as much as possible for later linear regression
     
     def update_r_square_with_new_bin(self, p_threshold, sub_population_pct, selected_attributes = []):
         
@@ -948,7 +945,7 @@ class optimal_eda_glm:
         return pd_freq_tbl2
     
     
-    # transform original modeling dataset in spark dataframe with optimally binned segments' WOE / Mean value for later prediction
+# transform original modeling dataset in spark dataframe with optimally binned segments' WOE / Mean value for later prediction
     
     def transform_original_data(self, train_ratio = 0.8, var_to_transform = []):
         from pyspark.sql.functions import col
@@ -1036,7 +1033,7 @@ class optimal_eda_glm:
 
     
     
-    # iteratively filter outer H2O GLM modeling variables with p value higher than 5% so that all final retained variables are statistically significant
+# iteratively filter outer H2O GLM modeling variables with p value higher than 5% so that all final retained variables are statistically significant
     
     def iterative_model_selection(self, enet_glm, excluded_var_list, linear_reg):
         
@@ -1096,9 +1093,9 @@ class optimal_eda_glm:
         return final_glm, final_coef_table
 
 
-    # H2O GLM model building with option for elastic net regularization for optimal parameter search
-    # consolidate final model with variables selected from elastic net regression and re-fit the model with MLE method
-    # to make sure all variables are statistically significant
+# H2O GLM model building with option for elastic net regularization for optimal parameter search
+# consolidate final model with variables selected from elastic net regression and re-fit the model with MLE method
+# to make sure all variables are statistically significant
     
     def optimal_glm_tuning(self, excluded_var_list = [], linear_reg=True, elmnet_enabled=True):
 
@@ -1144,7 +1141,7 @@ class optimal_eda_glm:
         
 
     
-    # Automate the EDA, initial variable binning, binning optimization, original dataset transformation with encoding & final GLM modeling
+# Automate the EDA, initial variable binning, binning optimization, original dataset transformation with encoding & final GLM modeling
     
     def General_Linear_Model(self, data_path = '', infile_format = '', sep = ',', df =None, target_var=None, linear_reg=False, increment_percent=0.05,  create_sample=False, sample_cnt=50000, train_ratio=0.7, test_ratio=0.15, preselected_attributes=[], elmnet_enabled=False):
 
