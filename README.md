@@ -35,7 +35,7 @@ After initial EDA procedures, information value and WoE was calculated based on 
 | EXT_SOURCE_3 | 0.749       | 0.786        | 0.381 | 0.42       |
 
 
-However, 20 bins is quite excessive from scorecard building perspective. Meanwhile, some neighboring bins do not have significantly different level of default risk (as measured by probability of default). By recursively paritioning the variable to identify the split point that maximizes the difference of probability of default between population A and population B as measured by Chi-square statistics, we are able to create simplified segments that retains as much predictiveness of the original attributes as possible, as shown below:  
+However, 20 bins is quite excessive from scorecard building perspective. Meanwhile, some neighboring bins do not have significantly different level of default risk (as measured by probability of default). By recursively paritioning the variable to identify the split point that maximizes the difference of default probability between neighboring segments as measured by Chi-square statistics, we are able to create simplified segments that retains as much predictiveness of the original attributes as possible, as shown below:  
 
 ### After Chi-squared testing based recursive partitioning of original bins (8 bins)
 
