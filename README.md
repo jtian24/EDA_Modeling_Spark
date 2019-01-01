@@ -6,11 +6,16 @@ With Apache Spark and H2O, this module is highly scalable to 'big data' and can 
 
 One of the key challenges (Fun Part) of this project is to research and develop 'optimal binning procedures' for numerical variables. The point of feature binning and optimization is to reduce the complexity of model scorecard widely used in financial services and credit industry while retaining as much predictive power of the original variables as possible.
 
-Instead of using raw feature value, Weight of Evidence (WOE) is calculated and used to replace the original feature value for their corresponding segments in logistic regression. Similarly, mean value is calculated and used to replace the original feature value for their corresponding segments in linear regression.
+Inspired by the method of conditional inference tree in ctree package in r (https://cran.r-project.org/web/packages/partykit/vignettes/ctree.pdf), I developed and tested a hypothesis testing based recursive partitioning approach for optimal binning for continuous numerical variables, essentially build classification trees for each numerical variable with respect to the response variable. The root nodes of the tree will be the unique bins of each variable. Based on the initial binning result based on equal width quantiles, the algorithm searches and identify optimal split point based on hypothesis testing statistics that signals maximum difference in proprtion (logistic regression) or mean value (linear regression). More specifically, Chi-square testing of independence is applied at each predefined split point for variables used by logistic regression. Welch T test of two independent sample mean with unknown variance is applied at each predefined split point for variables used by linear regression. Split point with maximum testing statistics will be used for the recursive partitioning. 
 
-For demonstration, below is an example of using open source dataset from Kaggle Home Credit Default Risk competition to create a logistic regression model for default event prediction.
+The classification tree continue to grow until two conditions are no longer met:
 
-After initial EDA procedures, information value and WoE was calculated based on fixed width quantiles (e.g., 20-quantiles), below is the initial EDA result of top feature as measured by information value.
+1. P-value of the testing statistics is higher than 0.05 (user defined).
+2. The sample size of the bin is smaller than 5% of the total modeling sample size.
+
+After the variable binning, Weight of Evidence (WOE) is calculated and used to replace the original feature value for their corresponding segments in logistic regression. Similarly, mean value is calculated and used to replace the original feature value for their corresponding segments in linear regression. The procedure will also calculate information value for each variable in logistic regression and R square statistic for each variable in linear regression. This way we are able to compare the univariate predictiveness of both numerical variables and categorical variables on the same basis, since for categorical variables WoE and IV is calculated directly based on predefined categories.
+
+For demonstration, below is an example of using open source dataset from Kaggle Home Credit Default Risk competition to create a logistic regression model for default event prediction. Information value and WoE was calculated based on fixed width quantiles (e.g., 20-quantiles), below is the initial EDA result of top feature as measured by information value.
 
 ### Preliminary top feature binning result (20-quantiles)
 
@@ -57,13 +62,12 @@ However, 20 bins is quite excessive from scorecard building perspective. Meanwhi
 
 The downside of less granular variable discretization is the inevitable reduction of information value of original variables.
 
-However, compared with many binning techniques widely utilized in the industry (such as monotonic binning), this binning method has retained much higher information value of the original variable. Below shows the information value of top 15 attributes' with 20-quantile equal bins vs. with optimized bins.
+However, compared with many binning techniques widely utilized in the industry (such as monotonic binning), this binning method has shown to retain much higher information value of the original variable.Below shows the information value of top 15 attributes' with 20-quantile equal bins vs. with optimized bins.
 
 ### Comparison of information value before & after binning optimization (Top 15 attributes)
 
 ![alt text](https://raw.githubusercontent.com/jtian24/EDA_Modeling_Spark/master/IV_comparison_plot.png)
 
-As a side note, categorical variables are encoded with WoE directly with each distinct predefined categories.
 After all variables were optimally binned and encoded with WoE, the original dataset in PySpark dataframe was transformed with the a dictionary that maps original value to the WoE value of its corresponding segment.
 
 ### Automated Logistic / Linear Regression Modeling with Elastic Net Regularization
@@ -72,7 +76,7 @@ The logistic regression building process is also automated for the sake of bench
 
 The logistic/linear regression model building is consisted of 2 steps:
 
-Step 1: Variable Selection with elastic net hyper-parameter tuning : Grid search of optimal learning rate alpha combined with automated lambda search to automatically select best set of variables while alleviating any potential multicollinearity that may exists.
+Step 1: Filter out variables with too low IV/R square, then build the model using elastic net hyper-parameter tuning : Grid search of optimal learning rate alpha combined with automated lambda search to automatically select best set of variables while alleviating any potential multicollinearity that may exists.
 
 Step 2: Refit the model with variables selected in Step 1 using IRLSM algorithm so as to get p-value for each variable. Drop any variable that has a p-value > 0.05 and then refit the model until all variables of the logistic regression are statistically significant.
 
