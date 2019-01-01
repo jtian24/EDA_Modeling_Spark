@@ -92,7 +92,8 @@ Below is the coefficients table of the finalized logistic regression model:
 
 Its performance on the validation dataset with 5 folds cross validation is shown below:
 
-ModelMetricsBinomialGLM: glm ** Reported on cross-validation data **
+ModelMetricsBinomialGLM: glm  
+
 | Performance Metrics         | Value     |
 |-----------------------------|-----------|
 | MSE                         | 0.057     |
