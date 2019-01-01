@@ -4,9 +4,9 @@ This PySpark/H2O based module was created to automate the procedures of explorat
 
 With Apache Spark and H2O, this module is highly scalable to 'big data' and can process modeling dataset with hundreds of millions of rows and thousands of variables with ease, as long as sufficient computing power (e.g., number of CPUs) is provided.
 
-One of the key challenges (Fun Part) of this project is to research and develop 'optimal binning procedures' for numerical variables. The point of feature binning and optimization is to reduce the complexity of model scorecard widely used in financial services and credit industry while retaining as much predictive power of individual variables being used. 
+One of the key challenges (Fun Part) of this project is to research and develop 'optimal binning procedures' for numerical variables. The point of feature binning and optimization is to reduce the complexity of model scorecard widely used in financial services and credit industry while retaining as much predictive power of the original variables as possible.
 
-Instead of using raw feature value, Weight of Evidence (WOE) is calculated and used to replace the original feature value of their corresponding segments in logistic regression. Similarly, mean value is calculated and used to replace the original feature value of their corresponding segments in linear regression.
+Instead of using raw feature value, Weight of Evidence (WOE) is calculated and used to replace the original feature value for their corresponding segments in logistic regression. Similarly, mean value is calculated and used to replace the original feature value for their corresponding segments in linear regression.
 
 For demonstration, below is an example of using open source dataset from Kaggle Home Credit Default Risk competition to create a logistic regression model for default event prediction.
 
