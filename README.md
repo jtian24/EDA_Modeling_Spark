@@ -1,4 +1,4 @@
-# EDA_Modeling_Spark
+# Exploratory Data Analysis & GLM Model Building with Apache PySpark and H2O
 
 This PySpark/H2O based module was created to automate the procedures of exploratory data analysis, numerical and categorical feature encoding and binning, optimal linear/logistic regression building with optional elasticnet hyper-parameter tuning, as well as GBM model building with hyperparameter tuning. 
 
