@@ -1,8 +1,10 @@
 # EDA_Modeling_Spark
 
-This PySpark/H2O based module was created to automate the procedures of exploratory data analysis, numerical and categorical feature encoding and binning, as well as optimal linear/logistic regression building with optional elasticnet hyper-parameter tuning. The point of feature binning and optimization is to simplify the complexity of scorecard building process widely used in financial services and credit industry while retaining as much predictive power of each variable used in the statistical model.
+This PySpark/H2O based module was created to automate the procedures of exploratory data analysis, numerical and categorical feature encoding and binning, as well as optimal linear/logistic regression building with optional elasticnet hyper-parameter tuning. With Apache Spark and H2O, this module is highly scalable to 'big data' and can process modeling dataset with hundreds of millions of rows and thousands of variables with ease, as long as sufficient computing power (e.g., number of CPUs) is given.
 
-With Apache Spark and H2O, this module is highly scalable to 'big data' and can process modeling dataset with hundreds of millions of rows and thousands of variables with ease, as long as sufficient computing power (e.g., number of CPUs) is given.
+One of the key challenges (Fun Part) of this project is to research and develop 'optimal binning procedures' for numerical variables. The point of feature binning and optimization is to reduce the complexity of model scorecard widely used in financial services and credit industry while retaining as much predictive power of individual variables being used. Instead of using raw feature value, Weight of Evidence (WOE) is calculated and used to replace the original feature value of their corresponding segments in logistic regression. Similarly, mean value is calculated and used to replace the original feature value of their corresponding segments in linear regression.
+
+
 
 
 
