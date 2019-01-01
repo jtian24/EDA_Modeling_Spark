@@ -8,7 +8,7 @@ One of the key challenges (Fun Part) of this project is to research and develop 
 
 
 
-## Preliminary Feature binning with equal 5 percentile value
+### preliminary top feature binning result (20-quantiles)
 
 
 | var_name     | lower_bound | higher_bound | WOE   | overall_IV |
