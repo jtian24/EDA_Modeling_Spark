@@ -63,6 +63,21 @@ However, compared with many binning techniques widely utilized in the industry (
 
 ![alt text](https://raw.githubusercontent.com/jtian24/EDA_Modeling_Spark/master/IV_comparison_plot.png)
 
+As a side note, categorical variables are encoded with WoE directly with each distinct predefined categories.
+After all variables were optimally binned and encoded with WoE, the original dataset in PySpark dataframe was transformed with the a dictionary that maps original value to the WoE value of its corresponding segment.
+
+### Automated Logistic Regression Modeling with Elastic Net Regularization
+
+The logistic regression building process is also automated for the sake of benchmarking and convenience. In reality, we need to double check if selected attributes are viable for a variety of other considerations, especially regulation considerations.
+
+The logistic/linear regression model building is consisted of 2 steps:
+
+Step 1: Variable Selection with elastic net hyper-parameter tuning : Grid search of optimal learning rate alpha combined with automated lambda search to automatically select best set of variables while alleviating any potential multicollinearity that may exists.
+
+Step 2: Refit the model with variables selected in Step 1 using IRLSM algorithm so as to get p-value for each variable. Drop any variable that has a p-value > 0.05 and then refit the model until all variables of the logistic regression are statistically significant.
+
+
+
 
 
 
