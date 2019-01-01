@@ -1117,7 +1117,7 @@ class optimal_eda_glm:
         predictors = [var for var in train.columns if not var in excluded_var_list+ [target_var]]
 
         if elmnet_enabled == True:
-            hyper_parameters = {'alpha': [0.01, 0.05, 0.1, 0.2]}
+            hyper_parameters = {'alpha': [0.1, 0.3, 0.5, 0.7, 0.9]}
 
             search_criteria = {'strategy': "RandomDiscrete", 'seed': 42,
                     'stopping_metric': performance_metric, 
