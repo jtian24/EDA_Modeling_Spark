@@ -1177,7 +1177,7 @@ class optimal_eda_glm:
 
         self.h2o_df = h2o.import_file(path = file_path)
         response = target_var
-        predictors = [var for var in h2o_df.columns if var not in list([response] + excluded_var_list)]
+        predictors = [var for var in self.h2o_df.columns if var not in list([response] + excluded_var_list)]
         ## use all other columns (except for the name & the response column ("survived")) as predictors
 
         if linear_reg == True:
@@ -1186,7 +1186,7 @@ class optimal_eda_glm:
         else:
             distribution = 'bernoulli'
             performance_metric = 'AUC'
-            self.h2o_df[response] = h2o_df[response].asfactor()
+            self.h2o_df[response] = self.h2o_df[response].asfactor()
         
         #split original data into train, valid and test dataset
         train, test = self.h2o_df.split_frame(ratios=[train_ratio],  seed=1234, destination_frames=['train.hex','test.hex'])
