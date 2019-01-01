@@ -92,17 +92,20 @@ Below is the coefficients table of the finalized logistic regression model:
 
 Its performance on the validation dataset with 5 folds cross validation is shown below:
 
-ModelMetricsBinomialGLM: glm (Reported on cross-validation data)
+ModelMetricsBinomialGLM: glm ** Reported on cross-validation data **
+| Performance Metrics         | Value     |
+|-----------------------------|-----------|
+| MSE                         | 0.057     |
+| RMSE                        | 0.239     |
+| LogLoss                     | 0.216     |
+| Null degrees of freedom     | 32927     |
+| Residual degrees of freedom | 32919     |
+| Null deviance               | 15958.195 |
+| Residual deviance           | 14208.194 |
+| AIC                         | 14226.194 |
+| AUC                         | 0.751     |
+| pr_auc                      | 0.193     |
+| Gini                        | 0.502     |
   
-MSE: 0.057284611756252844
-RMSE: 0.23934203925815634
-LogLoss: 0.21574638711398142
-Null degrees of freedom: 32927
-Residual degrees of freedom: 32919
-Null deviance: 15958.194844250796
-Residual deviance: 14208.194069778361
-AIC: 14226.194069778361
-AUC: 0.7509476482394349
-pr_auc: 0.1928770858696457
-Gini: 0.5018952964788699
+
 
