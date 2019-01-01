@@ -126,6 +126,6 @@ ModelMetricsBinomial: gbm
 | pr_auc               | 0.231  |
 | Gini                 | 0.508  |
 
-Meanwhile, the variable importance score of GBM model also reaffirms our GLM's variable selection for final model, as shown below:
+Meanwhile, the variable importance score of GBM model also reaffirms our GLM's variable selection for final model: 6 out of 8 variables selected by the final logistic regression model was among top 20 attributes by GBM variable importance, as shown below:
 
 ![alt text](https://raw.githubusercontent.com/jtian24/EDA_Modeling_Spark/master/gbm_top20_varimp.png)
