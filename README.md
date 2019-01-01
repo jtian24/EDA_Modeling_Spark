@@ -66,7 +66,7 @@ However, compared with many binning techniques widely utilized in the industry (
 As a side note, categorical variables are encoded with WoE directly with each distinct predefined categories.
 After all variables were optimally binned and encoded with WoE, the original dataset in PySpark dataframe was transformed with the a dictionary that maps original value to the WoE value of its corresponding segment.
 
-### Automated Logistic Regression Modeling with Elastic Net Regularization
+### Automated Logistic / Linear Regression Modeling with Elastic Net Regularization
 
 The logistic regression building process is also automated for the sake of benchmarking and convenience. In reality, we need to double check if selected attributes are viable for a variety of other considerations, especially regulation considerations.
 
@@ -76,8 +76,34 @@ Step 1: Variable Selection with elastic net hyper-parameter tuning : Grid search
 
 Step 2: Refit the model with variables selected in Step 1 using IRLSM algorithm so as to get p-value for each variable. Drop any variable that has a p-value > 0.05 and then refit the model until all variables of the logistic regression are statistically significant.
 
+Below is the coefficients table of the finalized logistic regression model:
 
+| names              | coefficients | std_error   | z_value      | p_value     | standardized_coefficients | abs_std_coef |
+|--------------------|--------------|-------------|--------------|-------------|---------------------------|--------------|
+| Intercept          | -2.518710065 | 0.028041606 | -89.82046366 | 0           | -3.03634704               | 3.03634704   |
+| EXT_SOURCE_3       | 0.90264017   | 0.03612687  | 24.98528542  | 0           | 0.552413545               | 0.552413545  |
+| EXT_SOURCE_2       | 0.748842999  | 0.043063842 | 17.38913587  | 0           | 0.388219646               | 0.388219646  |
+| EXT_SOURCE_1       | 0.633122487  | 0.041641299 | 15.20419637  | 0           | 0.363019165               | 0.363019165  |
+| ORGANIZATION_TYPE  | 0.627250701  | 0.099469222 | 6.30597774   | 2.86E-10    | 0.158009536               | 0.158009536  |
+| OWN_CAR_AGE        | 0.628872652  | 0.104347376 | 6.026722217  | 1.67E-09    | 0.141618026               | 0.141618026  |
+| NAME_CONTRACT_TYPE | 0.916899548  | 0.223324089 | 4.1056903    | 4.03E-05    | 0.125941615               | 0.125941615  |
+| FLAG_DOCUMENT_3    | 0.310471353  | 0.14874064  | 2.087333711  | 0.03685798  | 0.056076214               | 0.056076214  |
+| CNT_CHILDREN       | -0.627442031 | 0.296022391 | -2.119576253 | 0.034041797 | -0.049089965              | 0.049089965  |
 
+Its performance on the validation dataset with 5 folds cross validation is shown below:
 
+ModelMetricsBinomialGLM: glm
+** Reported on cross-validation data. **
 
+MSE: 0.057284611756252844
+RMSE: 0.23934203925815634
+LogLoss: 0.21574638711398142
+Null degrees of freedom: 32927
+Residual degrees of freedom: 32919
+Null deviance: 15958.194844250796
+Residual deviance: 14208.194069778361
+AIC: 14226.194069778361
+AUC: 0.7509476482394349
+pr_auc: 0.1928770858696457
+Gini: 0.5018952964788699
 
