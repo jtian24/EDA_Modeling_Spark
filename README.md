@@ -19,6 +19,8 @@ After the variable binning, Weight of Evidence (WOE) is calculated and used to r
 
 For demonstration, below is an example of using open source dataset from Kaggle Home Credit Default Risk competition to create a logistic regression model for default event prediction. Information value and WoE was calculated based on fixed width quantiles (e.g., 20-quantiles), below is the initial EDA result of top feature as measured by information value.
 
+(Please reference the following functions: stack_columns_bucketization, init_woe_iv (logistic regression), init_r_square (linear regression) for initial quantile based binning and EDA procedures using PySpark/Pandas.)
+
 ### Preliminary top feature binning result (20-quantiles)
 
 
@@ -48,6 +50,8 @@ For demonstration, below is an example of using open source dataset from Kaggle 
 
 However, 20 bins is quite excessive from scorecard building perspective. Meanwhile, some neighboring bins do not have significantly different level of default risk (as measured by probability of default). By recursively paritioning the variable to identify the split point that maximizes the difference of default probability between neighboring segments as measured by Chi-square statistics, we are able to create simplified segments that retains as much predictiveness of the original attributes as possible, as shown below:  
 
+(please reference update_iv_with_new_bin and recursive_var_bin function for recursive bin optimization for logistic regression, update_r_square_with_new_bin and LR_recursive_var_bin function for recursive bin optimization for linear regression)
+
 ### After Chi-squared testing based recursive partitioning of original bins (8 bins)
 
 | var_name     | lower_bound | higher_bound | WOE    | overall_IV |
@@ -72,6 +76,8 @@ However, compared with many binning techniques widely utilized in the industry (
 
 After all variables were optimally binned and encoded with WoE, the original dataset in PySpark dataframe was transformed with the a dictionary that maps original value to the WoE value of its corresponding segment.
 
+(please reference transform_original_data function for modeling data WoE/Mean Value transformation using PySpark)
+
 ### Automated Logistic / Linear Regression Modeling with Elastic Net Regularization
 
 The logistic regression building process is also automated for the sake of benchmarking and convenience. In reality, we need to double check if selected attributes are viable for a variety of other considerations, especially regulation considerations.
@@ -81,6 +87,8 @@ The logistic/linear regression model building is consisted of 2 steps:
 Step 1: Filter out variables with too low IV/R square, then build the model using elastic net hyper-parameter tuning : Grid search of optimal penalty distribution (alpha) between L1 and L2 regularization and then at each level of alpha search for optimal lambda representing penalty strength to automatically select best set of variables in terms of cross validation performance.
 
 Step 2: Necessary for model scorecard building, re-fit the model with variables selected in Step 1 using IRLSM algorithm so as to get p-value for each variable. Drop any variable that has a p-value > 0.05 and then refit the model until all variables of the logistic regression are statistically significant.
+
+(please reference optimal_glm_tuning and iterative_model_selection function for GLM grid search of hyper-parameters and model building)
 
 Below is the coefficients table of the finalized logistic regression model:
 
@@ -117,6 +125,8 @@ ModelMetricsBinomialGLM: glm
 ### GBM modeling performance benchmark
 
 In order to get a sense of how the above GLM model performs, we also utilized GBM_model_eda module to create a hyper-parameter tuned Gradient Boosting Machine model to train the modeling dataset, and tested its performance on the testing dataset.
+
+(please reference GBM_model_eda function for optimal GBM model building with hyper-parameter tuning)
 
 To our surprise, the GBM model only performs marginally better (GBM AUC of 75.4% vs. GLM AUC of 74.2%) than the logistic regression model on the testing dataset, as shown below:
 
