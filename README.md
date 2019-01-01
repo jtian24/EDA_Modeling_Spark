@@ -76,9 +76,9 @@ The logistic regression building process is also automated for the sake of bench
 
 The logistic/linear regression model building is consisted of 2 steps:
 
-Step 1: Filter out variables with too low IV/R square, then build the model using elastic net hyper-parameter tuning : Grid search of optimal learning rate alpha combined with automated lambda search to automatically select best set of variables while alleviating any potential multicollinearity that may exists.
+Step 1: Filter out variables with too low IV/R square, then build the model using elastic net hyper-parameter tuning : Grid search of optimal penalty distribution (alpha) between L1 and L2 regularization and then at each level of alpha search for optimal lambda representing penalty strength to automatically select best set of variables in terms of cross validation performance.
 
-Step 2: Refit the model with variables selected in Step 1 using IRLSM algorithm so as to get p-value for each variable. Drop any variable that has a p-value > 0.05 and then refit the model until all variables of the logistic regression are statistically significant.
+Step 2: Necessary for model scorecard building, re-fit the model with variables selected in Step 1 using IRLSM algorithm so as to get p-value for each variable. Drop any variable that has a p-value > 0.05 and then refit the model until all variables of the logistic regression are statistically significant.
 
 Below is the coefficients table of the finalized logistic regression model:
 
