@@ -15,9 +15,9 @@ The classification tree continue to grow until two conditions are no longer met:
 1. P-value of the testing statistics is higher than 0.05 (user defined).
 2. The sample size of the bin is smaller than 5% of the total modeling sample size.
 
-After the variable binning, Weight of Evidence (WOE) is calculated and used to replace the original feature value for their corresponding segments in logistic regression. Similarly, mean value is calculated and used to replace the original feature value for their corresponding segments in linear regression. The procedure will also calculate information value for each variable in logistic regression and R square statistic for each variable in linear regression. This way we are able to compare the univariate predictiveness of both numerical variables and categorical variables on the same basis, since for categorical variables WoE and IV is calculated directly based on predefined categories.
+After the variable binning, Weight of Evidence (WOE) is calculated and used to replace the original feature value for their corresponding segments in logistic regression. Similarly, mean value is calculated and used to replace the original feature value for their corresponding segments in linear regression. The procedure will also calculate information value for each variable in logistic regression and R square statistic for each variable in linear regression. This way we are able to compare the univariate predictiveness of both numerical variables and categorical variables on the same basis, since for categorical variables WoE/IV or Mean/R square is calculated directly based on predefined categories.
 
-For demonstration, below is an example of using open source dataset from Kaggle Home Credit Default Risk competition to create a logistic regression model for default event prediction. Information value and WoE was calculated based on fixed width quantiles (e.g., 20-quantiles), below is the initial EDA result of top feature as measured by information value.
+For demonstration purpose, below is an example of using open source dataset from Kaggle Home Credit Default Risk competition to create a logistic regression model for default event prediction. Information value/WoE was calculated based on fixed quantiles (e.g., 20-quantiles). The table below shows the initial EDA result of top feature as measured by information value.
 
 (Please reference the following functions: stack_columns_bucketization, init_woe_iv (logistic regression), init_r_square (linear regression) for initial quantile based binning and EDA procedures using PySpark/Pandas.)
 
@@ -48,7 +48,9 @@ For demonstration, below is an example of using open source dataset from Kaggle 
 | EXT_SOURCE_3 | 0.749       | 0.786        | 0.381 | 0.42       |
 
 
-However, 20 bins is quite excessive from scorecard building perspective. Meanwhile, some neighboring bins do not have significantly different level of default risk (as measured by probability of default). By recursively paritioning the variable to identify the split point that maximizes the difference of default probability between neighboring segments as measured by Chi-square statistics, we are able to create simplified segments that retains as much predictiveness of the original attributes as possible, as shown below:  
+However, 20 bins is quite excessive from scorecard building perspective. Meanwhile, some neighboring bins do not have significantly different level of default risk (as measured by probability of default). 
+
+After applying the recursive bin partitioning based on Chi-Square testing mentioned above to refine and simplify the segments binning, we reduced the total number of bins for EXT_SOURCE_3 while retaining majority of information value, as shown below:  
 
 (please reference update_iv_with_new_bin and recursive_var_bin function for recursive bin optimization for logistic regression, update_r_square_with_new_bin and LR_recursive_var_bin function for recursive bin optimization for linear regression)
 
@@ -68,13 +70,15 @@ However, 20 bins is quite excessive from scorecard building perspective. Meanwhi
 
 The downside of less granular variable discretization is the inevitable reduction of information value of original variables.
 
-However, compared with many binning techniques widely utilized in the industry (such as monotonic binning), this binning method has shown to retain much higher information value of the original variable.Below shows the information value of top 15 attributes' with 20-quantile equal bins vs. with optimized bins.
+However, compared with many binning techniques widely utilized in the industry (such as monotonic binning), this binning method has shown to retain much higher information value of the original variable. 
+
+The graph below shows the information value of top 15 attributes' with 20-quantile equal bins vs. with optimized bins.
 
 ### Comparison of information value before & after binning optimization (Top 15 attributes)
 
 ![alt text](https://raw.githubusercontent.com/jtian24/EDA_Modeling_Spark/master/IV_comparison_plot.png)
 
-After all variables were optimally binned and encoded with WoE, the original dataset in PySpark dataframe was transformed with the a dictionary that maps original value to the WoE value of its corresponding segment.
+After all variables were optimally binned and encoded with WoE/mean value, the original dataset in PySpark dataframe was transformed with the a dictionary that maps original value to the WoE/mean value of its corresponding segment.
 
 (please reference transform_original_data function for modeling data WoE/Mean Value transformation using PySpark)
 
