@@ -4,9 +4,9 @@ This PySpark/H2O based module was created to automate the procedures of explorat
 
 One of the key challenges (Fun Part) of this project is to research and develop 'optimal binning procedures' for numerical variables. The point of feature binning and optimization is to reduce the complexity of model scorecard widely used in financial services and credit industry while retaining as much predictive power of individual variables being used. Instead of using raw feature value, Weight of Evidence (WOE) is calculated and used to replace the original feature value of their corresponding segments in logistic regression. Similarly, mean value is calculated and used to replace the original feature value of their corresponding segments in linear regression.
 
+For demonstration, below is an example of using open source dataset from Kaggle Home Credit Default Risk competition to create a logistic regression model for default event prediction.
 
-
-
+After initial EDA procedures, information value and WoE was calculated based on fixed quantile (e.g., 20-quantiles) with same length, below is the top feature as measured by information value.
 
 ### preliminary top feature binning result (20-quantiles)
 
@@ -35,7 +35,7 @@ One of the key challenges (Fun Part) of this project is to research and develop 
 | EXT_SOURCE_3 | 0.749       | 0.786        | 0.381 | 0.42       |
 
 
-
+However, 20 bins is quite excessive from scorecard building perspective. Meanwhile, some neighboring bins do not have significantly different level of default risk (as measured by probability of default). By recursively paritioning the variable to identify the split point that maximizes the difference of probability of default between population A and population B as measured by Chi-square statistics, we are able to create simplified segments that retains as much predictiveness of the original attributes as possible, as shown below:  
 
 
 | var_name     | lower_bound | higher_bound | WOE    | overall_IV |
@@ -50,7 +50,9 @@ One of the key challenges (Fun Part) of this project is to research and develop 
 | EXT_SOURCE_3 | 0.618       | 0.694        | -0.666 | 0.330      |
 | EXT_SOURCE_3 | 0.694       | 0.786        | -0.919 | 0.330      |
 
+The downside of less granular variable discretization is the inevitable reduction of information value of original variables.
 
+However, compared with many binning techniques widely utilized in the industry (such as monotonic binning), this binning method has retained much higher information value of the original variable. Below shows the information value of top 15 attributes' with 20-quantile equal bins vs. with optimized bins.
 
 ![alt text](https://raw.githubusercontent.com/jtian24/EDA_Modeling_Spark/master/IV_comparison_plot.png)
 
