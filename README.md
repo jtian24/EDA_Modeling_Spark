@@ -1,6 +1,6 @@
 # High Performance EDA & GLM Modeling with Apache Spark and H2O
 
-This PySpark/H2O based module was created to automate the procedures of exploratory data analysis, numerical and categorical feature encoding and binning, optimal linear/logistic regression building with optional elasticnet hyper-parameter tuning, as well as GBM model building with hyperparameter tuning. 
+This PySpark/H2O based module (optimal_eda_glm.py) was created to automate the procedures of exploratory data analysis, numerical and categorical feature encoding and binning, optimal linear/logistic regression building with optional elasticnet hyper-parameter tuning, as well as GBM model building with hyperparameter tuning. 
 
 With Apache Spark and H2O, this module is highly scalable to 'big data' and can process modeling dataset with millions of rows and thousands of variables with ease, as long as sufficient computing power (e.g., number of CPUs) is provided.
 
