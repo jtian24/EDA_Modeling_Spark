@@ -10,7 +10,7 @@ Instead of using raw feature value, Weight of Evidence (WOE) is calculated and u
 
 For demonstration, below is an example of using open source dataset from Kaggle Home Credit Default Risk competition to create a logistic regression model for default event prediction.
 
-After initial EDA procedures, information value and WoE was calculated based on fixed quantile (e.g., 20-quantiles) with same length, below is the top feature as measured by information value.
+After initial EDA procedures, information value and WoE was calculated based on fixed width quantiles (e.g., 20-quantiles), below is the initial EDA result of top feature as measured by information value.
 
 ### Preliminary top feature binning result (20-quantiles)
 
