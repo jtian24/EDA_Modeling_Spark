@@ -1,5 +1,4 @@
 
-# coding: utf-8
 ##############################################################################################################################################
 #Author: Jian Tian, last updated 12/2018
 # This Python Module is designed to conduct exploratory data analysis, optimal feature encoding 
@@ -118,25 +117,33 @@ class optimal_eda_glm:
         
  
     def import_data(self, data_path='', infile_format='', sep=',', df=None,  target_var=None, create_sample=False, sample_cnt=50000,
-                    increment_percent=0.05, linear_reg=False):
+                    increment_percent=0.05, linear_reg=False, preselected_attributes=[], refine_datatype=False):
 
         if infile_format == 'csv' and data_path != '':
             self.df = self.sqlContext.read.format('com.databricks.spark.csv').option("sep",sep).options(header = 'true', inferschema = 'true').csv(data_path)
             
             self.df_total_cnt = self.df.count()
             self.target_var = target_var
+            
             if create_sample == True:
                 self.sample_ratio = sample_cnt/self.df_total_cnt
                 self.df_samp = df.sample(withReplacement = False, fraction = self.sample_ratio, seed=1713)
                 self.df_samp_total_cnt = self.df_samp.count()
 
             else:
-                self.df_samp = self.df
+
+                self.df_samp = self.df.select(included_attributes)
                 self.df_samp_total_cnt = self.df_samp.count()
+                
                 
             if linear_reg == False:
                 self.good_tot_cnt = self.df_samp.filter(self.df_samp[self.target_var] > 0).count()
                 self.bad_tot_cnt =  self.df_samp.filter(self.df_samp[self.target_var] == 0).count()
+                
+            if len(preselected_attributes) > 0:
+                included_attributes = preselected_attributes + [self.target_var]
+                self.df = self.df.select(included_attributes)
+                self.df_samp = self.df_samp.select(included_attributes)
                 
         else:
             self.df = df
@@ -153,6 +160,11 @@ class optimal_eda_glm:
             if linear_reg == False:
                 self.good_tot_cnt = self.df_samp.filter(self.df_samp[self.target_var] > 0).count()
                 self.bad_tot_cnt =  self.df_samp.filter(self.df_samp[self.target_var] == 0).count()
+                
+            if len(preselected_attributes) > 0:
+                included_attributes = preselected_attributes + [self.target_var]
+                self.df = self.df.select(included_attributes)
+                self.df_samp = self.df_samp.select(included_attributes)
 
              
              
@@ -162,18 +174,31 @@ class optimal_eda_glm:
         
         #separate string type and numerical type
         for field in self.dtype_dict:
-            if self.dtype_dict[field] in ['StringType']:
+            if field != self.target_var:
+                if self.dtype_dict[field] in ['StringType']:
                     self.stringtype_list.append(field)
 
-            else:
+                else:
                     self.numericaltype_list.append(field)
                     
                     
         #initialize continuous variables and categorical variables initial binning statistics
-        self.variable_type_identify(0.95)
+        
+        if refine_datatype == True:
+            self.variable_type_identify(true_num_pct_threshold=0.95)
+
+        else:
+            self.categorical_attr = self.stringtype_list
+            self.numerical_attr = self.numericaltype_list
+            self.h2o_df = self.hc.as_h2o_frame(self.df)
+            self.h2o_df_samp = self.hc.as_h2o_frame(self.df_samp)
+            self.datatype_dict = {'numerical_attributes': self.numerical_attr, 'categorical_attributes': self.categorical_attr, 'constant attributes': []}
+            print('datatype dict is : ', self.datatype_dict)
+         
+
         
         # cap categorical variables to maximum categories of 100, minimum percent represnented to be 95%
-        self.cap_cat_var_class(0.95, 100)
+#         self.cap_cat_var_class(0.95, 100)
                                  
         #calculate quantile bins for numerical attributes
         self.stack_columns_bucketization(increment_percent)
@@ -268,7 +293,7 @@ class optimal_eda_glm:
                     if None in unique_char_value_set:
                         self.df_samp = self.df_samp.fillna('NULL', subset=[x])
  
-        for var in self.numerical_attr:
+        for var in self.numerical_attributes:
             self.df= self.df.withColumn(var, self.df[var].cast(DoubleType()))
             self.df_samp = self.df_samp.withColumn(var, self.df_samp[var].cast(DoubleType()))
         
@@ -276,7 +301,7 @@ class optimal_eda_glm:
         self.numerical_attr = numerical_attributes + self.numericaltype_list
         self.h2o_df = self.hc.as_h2o_frame(self.df)
         self.h2o_df_samp = self.hc.as_h2o_frame(self.df_samp)
-        self.datatype_dict = {'numerical_attributes:': self.numerical_attr, 'categorical_attributes:': self.categorical_attr, 'constant attributes :': self.constant_attributes}
+        self.datatype_dict = {'numerical_attributes': self.numerical_attr, 'categorical_attributes': self.categorical_attr, 'constant attributes': self.constant_attributes}
             
          
 
@@ -465,7 +490,7 @@ class optimal_eda_glm:
         freq_tbl['bad_total'] = self.bad_tot_cnt
         freq_tbl['good_pct'] = freq_tbl.apply(lambda row: float(row['nonzero_cnt'] + 0.5)/(row['good_total'] + 0.5), axis = 1)
         freq_tbl['bad_pct'] = freq_tbl.apply(lambda row: float(row['zero_cnt'] + 0.5)/(row['bad_total'] + 0.5), axis = 1)
-        freq_tbl['WOE'] = freq_tbl.apply(lambda row: float(row['good_pct'])/row['bad_pct'], axis = 1)
+        freq_tbl['WOE'] = freq_tbl.apply(lambda row: np.log(float(row['good_pct'])/row['bad_pct']), axis = 1)
         freq_tbl['IV'] = freq_tbl.apply(lambda row: (row['good_pct'] - row['bad_pct'])*row['WOE'], axis = 1)
         agg_freq_tbl = freq_tbl.groupby(['var_name']).agg({'IV': 'sum'}).reset_index().rename(index=str, columns={"IV": "IV_sum"}).sort_values('IV_sum', ascending = False)
         freq_tbl = freq_tbl.join(agg_freq_tbl.set_index('var_name'), on = 'var_name')
@@ -618,7 +643,7 @@ class optimal_eda_glm:
                 sub_var_df.loc[:, 'good_pct'] = sub_var_df.apply(lambda row: (row['nonzero_cnt'] + 0.5)/(float(row['good_total']) + 0.5), axis = 1)
                 sub_var_df.loc[:, 'bad_pct'] = sub_var_df.apply(lambda row: (row['zero_cnt'] + 0.5)/(float(row['bad_total']) + 0.5), axis = 1)
                 sub_var_df.loc[:, 'index'] = sub_var_df.apply(lambda row: int(100*row['good_pct']/row['bad_pct']) , axis = 1)
-                sub_var_df.loc[:, 'WOE'] = sub_var_df.apply(lambda row: math.log(row['good_pct']/row['bad_pct']), axis = 1)
+                sub_var_df.loc[:, 'WOE'] = sub_var_df.apply(lambda row: np.log(row['good_pct']/row['bad_pct']), axis = 1)
                 sub_var_df.loc[:, 'IV_bucket'] = sub_var_df.apply(lambda row: float(row['WOE']*(row['good_pct'] - row['bad_pct'])), axis = 1)
                 sub_var_df_list.append(sub_var_df)
         new_pd_num_freq1 = pd.concat(sub_var_df_list)
@@ -760,7 +785,7 @@ class optimal_eda_glm:
 
 
   
-# Hypothesis testing (Welch T test of sample mean) based recursive partitioning of continuous numerical variable into optimal bins 
+ # Hypothesis testing (Welch T test of sample mean) based recursive partitioning of continuous numerical variable into optimal bins 
     
     def LR_recursive_var_bin(self, pd_num_freq_tbl1, target_var_array, p_threshold, sub_population_pct, cut_point_list, t_value_list, p_value_list):
         import math
@@ -1117,9 +1142,9 @@ class optimal_eda_glm:
         predictors = [var for var in train.columns if not var in excluded_var_list+ [target_var]]
 
         if elmnet_enabled == True:
-            hyper_parameters = {'alpha': [0.1, 0.3, 0.5, 0.7, 0.9]}
+            hyper_parameters = {'alpha': [0.5, 0.6, 0.7, 0.8, 0.9, 1]}
 
-            search_criteria = {'strategy': "RandomDiscrete", 'seed': 42,
+            search_criteria = {'strategy': 'RandomDiscrete', 'seed': 42,
                     'stopping_metric': performance_metric, 
                     'stopping_tolerance': 0.01,
                     'stopping_rounds': 5,
@@ -1128,12 +1153,13 @@ class optimal_eda_glm:
             asymp_g = H2OGridSearch(H2OGeneralizedLinearEstimator(family= family, lambda_search = True, standardize = True,lambda_min_ratio = 0.01, nfolds = 5), hyper_parameters, search_criteria=search_criteria)
             asymp_g.train(x=predictors,y=target_var, training_frame=train, validation_frame = test)
             sorted_asymp_g = asymp_g.get_grid(performance_metric, decreasing = True)
-            best_asymp_g = sorted_asymp_g.models[0]
+            finalized_glm = sorted_asymp_g.models[0]
+            finalized_coef_table = final_glm._model_json['output']['coefficients_table'].as_data_frame()
         else:               
             best_asymp_g = H2OGeneralizedLinearEstimator(family = family, compute_p_values = True, remove_collinear_columns = True, standardize = True, missing_values_handling = "skip", lambda_ = 0, solver='IRLSM', nfolds = 10)
             best_asymp_g.train(x = predictors, y = target_var, training_frame = train, validation_frame = test)
+            finalized_glm, finalized_coef_table = self.iterative_model_selection(best_asymp_g,  excluded_var_list, linear_reg)
         
-        finalized_glm, finalized_coef_table = self.iterative_model_selection(best_asymp_g,  excluded_var_list, linear_reg)
         
         self.optimal_glm = finalized_glm
         
@@ -1143,9 +1169,9 @@ class optimal_eda_glm:
     
 # Automate the EDA, initial variable binning, binning optimization, original dataset transformation with encoding & final GLM modeling
     
-    def General_Linear_Model(self, data_path = '', infile_format = '', sep = ',', df =None, target_var=None, linear_reg=False, increment_percent=0.05,  create_sample=False, sample_cnt=50000, train_ratio=0.7, test_ratio=0.15, preselected_attributes=[], elmnet_enabled=False):
+    def General_Linear_Model(self, data_path = '', infile_format = '', sep = ',', df =None, target_var=None, linear_reg=False, increment_percent=0.05,  create_sample=False, sample_cnt=50000, train_ratio=0.7, test_ratio=0.15, preselected_attributes=[], elmnet_enabled=False, refine_datatype=False):
 
-        self.import_data(data_path = data_path, infile_format = infile_format, sep = sep, df = df,  target_var = target_var, create_sample = create_sample, sample_cnt = sample_cnt, increment_percent = increment_percent, linear_reg = linear_reg)
+        self.import_data(data_path = data_path, infile_format = infile_format, sep = sep, df = df,  target_var = target_var, create_sample = create_sample, sample_cnt = sample_cnt, increment_percent = increment_percent, linear_reg = linear_reg, preselected_attributes=preselected_attributes, refine_datatype=False)
         
         if len(preselected_attributes) != 0:
             numerical_attributes = [ var for var in self.datatype_dict['numerical_attributes'] if var in preselected_attributes]
@@ -1333,6 +1359,3 @@ class optimal_eda_glm:
         self.gbm_best_model_performance = gbm_best_model_performance
         self.gbm_best_model_params = optimal_GBM_parameters
         self.gbm_top_attributes = top_gbm_varimp
-
-        
-
