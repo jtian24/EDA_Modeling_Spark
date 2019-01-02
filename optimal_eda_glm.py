@@ -1154,7 +1154,7 @@ class optimal_eda_glm:
             asymp_g.train(x=predictors,y=target_var, training_frame=train, validation_frame = test)
             sorted_asymp_g = asymp_g.get_grid(performance_metric, decreasing = True)
             finalized_glm = sorted_asymp_g.models[0]
-            finalized_coef_table = final_glm._model_json['output']['coefficients_table'].as_data_frame()
+            finalized_coef_table = finalized_glm._model_json['output']['coefficients_table'].as_data_frame()
         else:               
             best_asymp_g = H2OGeneralizedLinearEstimator(family = family, compute_p_values = True, remove_collinear_columns = True, standardize = True, missing_values_handling = "skip", lambda_ = 0, solver='IRLSM', nfolds = 10)
             best_asymp_g.train(x = predictors, y = target_var, training_frame = train, validation_frame = test)
