@@ -197,9 +197,6 @@ class optimal_eda_glm:
             print('datatype dict is : ', self.datatype_dict)
          
 
-        
-        # cap categorical variables to maximum categories of 100, minimum percent represnented to be 95%
-#         self.cap_cat_var_class(0.95, 100)
                                  
         #calculate quantile bins for numerical attributes
         self.stack_columns_bucketization(increment_percent)
@@ -938,6 +935,7 @@ class optimal_eda_glm:
             pd_freq_tbl = pd.concat([pd_num_freq_tbl0, pd_num_freq_tbl1])
         else:
             pd_freq_tbl = pd_num_freq_tbl0
+        
         #key information needed to compute new R square: sum of segment_expalined_var, sum of segment_total_var, sum of target_var_sum, sum of total_count, new mean target, new r_square
         pd_freq_tbl1 = pd_freq_tbl.groupby(['var_name', 'new_bin']).agg({'segment_total_var':'sum', 'segment_explained_var':'sum', 'target_var_sum':'sum', 'total_count':'sum'})
         pd_freq_tbl1.reset_index(inplace = True)
