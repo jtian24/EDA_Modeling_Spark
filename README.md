@@ -90,19 +90,19 @@ Step 2: Necessary for model scorecard building, re-fit the model with variables 
 
 (please reference optimal_glm_tuning and iterative_model_selection function for GLM grid search of hyper-parameters and model building)
 
-Below is the coefficients table of the finalized logistic regression model:
+Below is the coefficients table of the finalized logistic regression model using H2O GLM module:
 
-| names              | coefficients | std_error   | z_value      | p_value     | standardized_coefficients | abs_std_coef |
-|--------------------|--------------|-------------|--------------|-------------|---------------------------|--------------|
-| Intercept          | -2.518710065 | 0.028041606 | -89.82046366 | 0           | -3.03634704               | 3.03634704   |
-| EXT_SOURCE_3       | 0.90264017   | 0.03612687  | 24.98528542  | 0           | 0.552413545               | 0.552413545  |
-| EXT_SOURCE_2       | 0.748842999  | 0.043063842 | 17.38913587  | 0           | 0.388219646               | 0.388219646  |
-| EXT_SOURCE_1       | 0.633122487  | 0.041641299 | 15.20419637  | 0           | 0.363019165               | 0.363019165  |
-| ORGANIZATION_TYPE  | 0.627250701  | 0.099469222 | 6.30597774   | 2.86E-10    | 0.158009536               | 0.158009536  |
-| OWN_CAR_AGE        | 0.628872652  | 0.104347376 | 6.026722217  | 1.67E-09    | 0.141618026               | 0.141618026  |
-| NAME_CONTRACT_TYPE | 0.916899548  | 0.223324089 | 4.1056903    | 4.03E-05    | 0.125941615               | 0.125941615  |
-| FLAG_DOCUMENT_3    | 0.310471353  | 0.14874064  | 2.087333711  | 0.03685798  | 0.056076214               | 0.056076214  |
-| CNT_CHILDREN       | -0.627442031 | 0.296022391 | -2.119576253 | 0.034041797 | -0.049089965              | 0.049089965  |
+| names              | coefficients | std_error   | z_value      | p_value     | standardized_coefficients |
+|--------------------|--------------|-------------|--------------|-------------|---------------------------|
+| Intercept          | -2.518710065 | 0.028041606 | -89.82046366 | 0           | -3.03634704               | 
+| EXT_SOURCE_3       | 0.90264017   | 0.03612687  | 24.98528542  | 0           | 0.552413545               | 
+| EXT_SOURCE_2       | 0.748842999  | 0.043063842 | 17.38913587  | 0           | 0.388219646               |
+| EXT_SOURCE_1       | 0.633122487  | 0.041641299 | 15.20419637  | 0           | 0.363019165               |
+| ORGANIZATION_TYPE  | 0.627250701  | 0.099469222 | 6.30597774   | 2.86E-10    | 0.158009536               | 
+| OWN_CAR_AGE        | 0.628872652  | 0.104347376 | 6.026722217  | 1.67E-09    | 0.141618026               | 
+| NAME_CONTRACT_TYPE | 0.916899548  | 0.223324089 | 4.1056903    | 4.03E-05    | 0.125941615               | 
+| FLAG_DOCUMENT_3    | 0.310471353  | 0.14874064  | 2.087333711  | 0.03685798  | 0.056076214               | 
+| CNT_CHILDREN       | -0.627442031 | 0.296022391 | -2.119576253 | 0.034041797 | -0.049089965              |
 
 The logistic regression's performance on the validation dataset is shown below:
 
@@ -124,7 +124,7 @@ ModelMetricsBinomialGLM: glm
   
 ### GBM modeling performance benchmark
 
-In order to get a sense of how the above GLM model performs, we also utilized GBM_model_eda module to create a hyper-parameter tuned Gradient Boosting Machine model to train the modeling dataset, and tested its performance on the testing dataset.
+In order to get a sense of how the above GLM model performs, GBM_model_eda module is implemented to create a hyper-parameter tuned Gradient Boosting Machine model in H2O to train the modeling dataset, and tested its performance on the testing dataset.
 
 (please reference GBM_model_eda function for optimal GBM model building with hyper-parameter tuning)
 
