@@ -106,15 +106,15 @@ After all variables were optimally binned and encoded with WoE/mean value, the o
 
 The logistic regression building process is also automated for the sake of benchmarking and convenience. In reality, we need to double check if selected attributes are viable for a variety of other considerations, especially regulation considerations.
 
-The logistic/linear regression model building is consisted of 2 steps:
+The logistic/linear regression model building is consisted of 2 options:
 
-Step 1: Filter out variables with too low IV/R square, then build the model using elastic net hyper-parameter tuning : Grid search of optimal penalty distribution (alpha) between L1 and L2 regularization and then at each level of alpha search for optimal lambda representing penalty strength to automatically select best set of variables in terms of cross validation performance.
+Option 1: Filter out variables with too low IV/R square, build the model using elastic net hyper-parameter tuning : Grid search of optimal penalty distribution (alpha) between L1 and L2 regularization and then at each alpha level (0.5 - 0.9), search for optimal lambda representing penalty strength to automatically select best set of variables in terms of cross validation performance. This option aims at creating optimal performance.
 
-Step 2: Necessary for model scorecard building, re-fit the model with variables selected in Step 1 using IRLSM algorithm so as to get p-value for each variable. Drop any variable that has a p-value > 0.05 and then refit the model until all variables of the logistic regression are statistically significant.
+Option 2: Necessary for model scorecard building, build the model with variables pre-selected using IV/R square using IRLSM algorithm so as to get p-value for each variable. Drop any variable that has a p-value > 0.05 and then recursively refit the model until all variables of the logistic regression are statistically significant (p < 0.05)
 
 (please reference optimal_glm_tuning and iterative_model_selection function for GLM grid search of hyper-parameters and model building)
 
-Below is the coefficients table of the finalized logistic regression model using H2O GLM module:
+Below is the coefficients table of the finalized logistic regression with option 2 using H2O GLM module:
 
 | names              | coefficients | std_error   | z_value      | p_value     | standardized_coefficients |
 |--------------------|--------------|-------------|--------------|-------------|---------------------------|
