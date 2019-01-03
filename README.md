@@ -1,6 +1,6 @@
 # High Performance EDA & GLM Modeling with Apache Spark and H2O
 
-This PySpark/H2O based module (optimal_eda_glm.py) was created to automate the procedures of exploratory data analysis, numerical and categorical feature encoding and binning, optimal linear/logistic regression and GBM model building with randomized hyper-parameter grid search.
+This PySpark/H2O based module (optimal_eda_glm.py) is a personal pet project aiming to automate the procedures of exploratory data analysis, numerical and categorical feature engineering and encoding, as well as the optimal linear/logistic regression/GBM model building with randomized hyper-parameter grid search.
 
 Inspired by the method of conditional inference tree in r ctree package (https://cran.r-project.org/web/packages/partykit/vignettes/ctree.pdf) and smbinning package (https://cran.r-project.org/web/packages/smbinning/smbinning.pdf), I extended the conditional inference tree based variable binning methd to both linear and logistic regression and implemented a slightly different version of hypothesis testing based tree building process.The computationally expensive step of calculating the contingency table based on inital quantile based bins are handled by PySpark in a parallel fashion.The algorithm essentially build a decision tree on a single variable with respect to target variable. The root nodes of the tree will be the unique bins of each variable. 
 
