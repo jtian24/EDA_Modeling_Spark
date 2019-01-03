@@ -1,5 +1,5 @@
 
-##############################################################################################################################################
+###########################################################################################################################################################################
 #Author: Jian Tian, last updated 12/2018
 # This Python Module is designed to conduct exploratory data analysis, optimal feature encoding 
 # and binning, as well as variable selection through both univariate analysis and GBM model building.
@@ -11,9 +11,10 @@
 # Linear Regression: Recursive partitioning (binary tree building) with Welch T Test of segment sample mean
 # Logistic Regression: Recursive partitioning (binary tree building) with Chi-Square Test of Independence of sample proportion
 # 4. Automatic GLM Variable Selection for both Linear / Logistic Regression with option to conduct elastic net hyper-parameter tuning:
-#    Step1 : Identify optimal set of variables through GLM elastic net search (alpha = [0.01, 0.05, 0.1, 0.2], automatic beta search enabled)
-#    Step2 : Constantly re-fit model with variables that has p value <.05 until all variables left are statistically significant
-###############################################################################################################################################
+#    Option 1: Identify optimal set of variables through GLM elastic net search (alpha = [0.5, 0.6, 0.7, 0.8, 0.9], automatic beta search enabled)
+#    Option 2 :  Iteratively fit model with variables that has p value <.05 until all variables left are statistically significant
+# 5. Automatic GBM model building with hyper-parameter tuning: first tune tree max depth to reduce range, then tune max_depth, col_sample_rate, sample rate and learning rate
+##############################################################################################################################################################################
 
 
 import time 
@@ -1273,7 +1274,7 @@ class optimal_eda_glm:
         else:
             sorted_grid = grid.get_grid(sort_by = performance_metric, decreasing=False)
 
-        max_depths = sorted_grid.sorted_metric_table()['max_depth'][0:4]
+        max_depths = sorted_grid.sorted_metric_table()['max_depth'][0:3]
         new_max = int(max_depths.max())
         new_min = int(max_depths.min())
 
