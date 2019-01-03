@@ -1169,7 +1169,7 @@ class optimal_eda_glm:
     
 # Automate the EDA, initial variable binning, binning optimization, original dataset transformation with encoding & final GLM modeling
     
-    def General_Linear_Model(self, data_path = '', infile_format = '', sep = ',', df =None, target_var=None, linear_reg=False, increment_percent=0.05,  create_sample=False, sample_cnt=50000, train_ratio=0.7, test_ratio=0.15, preselected_attributes=[], elmnet_enabled=False, refine_datatype=False):
+    def General_Linear_Model(self, data_path = '', infile_format = '', sep = ',', df =None, target_var=None, linear_reg=False, increment_percent=0.05,  create_sample=False, sample_cnt=50000, train_ratio=0.7, test_ratio=0.15, p_threshold = 0.05, sub_population_pct = 0.05, preselected_attributes=[], elmnet_enabled=False, refine_datatype=False):
 
         self.import_data(data_path = data_path, infile_format = infile_format, sep = sep, df = df,  target_var = target_var, create_sample = create_sample, sample_cnt = sample_cnt, increment_percent = increment_percent, linear_reg = linear_reg, preselected_attributes=preselected_attributes, refine_datatype=False)
         
@@ -1182,17 +1182,25 @@ class optimal_eda_glm:
             
             
         if linear_reg == False:
+            start = time.time()
             self.init_woe_iv(numerical_attr = numerical_attributes, categorical_attr = categorical_attributes)
-            self.update_iv_with_new_bin(p_threshold = 0.05, sub_population_pct = 0.05, selected_attributes = preselected_attributes)
+            self.update_iv_with_new_bin(p_threshold = p_threshold, sub_population_pct = sub_population_pct, selected_attributes = preselected_attributes)
+            end = time.time()
             self.transform_original_data(train_ratio = train_ratio,  var_to_transform = preselected_attributes)
+            print('total time it takes to calculate information value is ', end - start)
         else:
+            start = time.time()
             self.init_r_square(numerical_attr = numerical_attributes, categorical_attr = categorical_attributes, excluded_var = [])
-            self.update_r_square_with_new_bin(p_threshold = 0.05, sub_population_pct = 0.05, selected_attributes = preselected_attributes)
+            self.update_r_square_with_new_bin(p_threshold = p_threshold, sub_population_pct = sub_population_pct, selected_attributes = preselected_attributes)
+            end = time.time()
             self.transform_original_data(train_ratio = train_ratio, var_to_transform = preselected_attributes)
 
+            print('total time it takes to calculate information value is ', end - start)
+        
         self.optimal_glm_tuning(excluded_var_list = [], linear_reg = linear_reg, elmnet_enabled= elmnet_enabled)
         
         return self.optimal_glm, self.optimal_coef_tbl
+
 
     # alternative method to create benchmark for optimal performance through hyper-parameter tunned GBM model building
     
