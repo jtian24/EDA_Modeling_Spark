@@ -1,21 +1,17 @@
 # High Performance EDA & GLM Modeling with Apache Spark and H2O
 
-This PySpark/H2O based module (optimal_eda_glm.py) was created to automate the procedures of exploratory data analysis, numerical and categorical feature encoding and binning, optimal linear/logistic regression building with optional elasticnet hyper-parameter tuning, as well as GBM model building with hyperparameter tuning. 
+This PySpark/H2O based module (optimal_eda_glm.py) was created to automate the procedures of exploratory data analysis, numerical and categorical feature encoding and binning, optimal linear/logistic regression and GBM model building with randomized hyper-parameter grid search.
 
-With Apache Spark and H2O, this module is highly scalable to 'big data' and can process modeling dataset with millions of rows and thousands of variables with ease, as long as sufficient computing power (e.g., number of CPUs) is provided.
+Inspired by the method of conditional inference tree in r ctree package (https://cran.r-project.org/web/packages/partykit/vignettes/ctree.pdf) and smbinning package (https://cran.r-project.org/web/packages/smbinning/smbinning.pdf), I extended the conditional inference tree based variable binning methd to both linear and logistic regression and implemented a slightly different version of hypothesis testing based tree building process.The computationally expensive step of calculating the contingency table based on inital quantile based bins are handled by PySpark in a parallel fashion.The algorithm essentially build a decision tree on a single variable with respect to target variable. The root nodes of the tree will be the unique bins of each variable. 
 
-One of the key challenges (Fun Part) of this project is to research and develop 'optimal binning procedures' for numerical variables. The point of feature binning and optimization is to reduce the complexity of model scorecard widely used in financial services and credit industry while retaining as much predictive power of the original variables as possible.
-
-Inspired by the method of conditional inference tree in r ctree package (https://cran.r-project.org/web/packages/partykit/vignettes/ctree.pdf), I developed and tested a hypothesis testing based recursive partitioning approach for optimal binning for continuous numerical variables for both logistic and linear regression. The algorithm essentially build a classification tree based on single variable with respect to target variable. The root nodes of the tree will be the unique bins of each variable. Using the initial quantile based bins, the algorithm searches and identify optimal split point based on hypothesis testing statistics that signals maximum difference in proprtion (logistic regression) or mean value (linear regression). 
-
-More specifically, Chi-square testing of equality of sample proportions is applied to populations divided by each initial quantile bins for variables used by logistic regression. Welch T test of two independent sample mean with unknown variance is applied to populations divided by initial quantile bins for variables used by linear regression. Under both scenarios, split point with maximum testing statistics will be used for the recursive partitioning.
-
-The classification tree continue to grow until two conditions are no longer met:
+Here is the algorithm description: with the initial quantile based bins (e.g., 20-quantiles), the algorithm scans and identifies optimal split point based on appropriate hypothesis testing statistic that signals maximum difference in either proprtion (logistic regression) or mean value (linear regression). Specifically, Chi-square testing of independence of sample proportions is applied to the datasets segmented by each initial quantile bin for each numerical variable used by logistic regression. Similarly, Welch T test of two independent sample mean with unknown variance is applied to the datasets segmented by each initial quantile bin for variables used by linear regression. After splitting the dataset into two segments, the two segments will each go through the same divide and conquer procedures using a recursive function until one of the following two conditions is no longer met:
 
 1. P-value of the testing statistics is higher than 0.05 (user defined).
 2. The sample size of the bin is smaller than 5% of the total modeling sample size.
 
-After the variable binning, Weight of Evidence (WOE) is calculated and used to replace the original feature value for their corresponding segments in logistic regression. Similarly, mean value is calculated and used to replace the original feature value for their corresponding segments in linear regression. The procedure will also calculate information value for each variable in logistic regression and R square statistic for each variable in linear regression. This way we are able to compare the univariate predictiveness of both numerical variables and categorical variables on the same basis, since for categorical variables WoE/IV or Mean/R square is calculated directly based on predefined categories.
+Condition 1 aims to ensure the two segments have statistically significant difference that justifies more granular binning. Condition 2 aims to ensure the minimum sample size of the smallest bin is not too small to be practically significant.
+
+After the variable binning, Weight of Evidence (WOE) is calculated and used to replace the original feature value for their corresponding segments in logistic regression. On the other hand, mean value is calculated and used to replace the original feature value for their corresponding segments in linear regression. The procedure will also calculate information value for each variable in logistic regression and R square statistic for each variable in linear regression. This way we are able to compare the univariate predictiveness of both numerical variables and categorical variables on the same basis, since for categorical variables WoE/IV or Mean/R square is calculated directly based on pre-defined categories.
 
 For demonstration purpose, below is an example of using open source dataset from Kaggle Home Credit Default Risk competition to create a logistic regression model for default event prediction. Information value/WoE was calculated based on fixed quantiles (e.g., 20-quantiles). The table below shows the initial EDA result of top feature as measured by information value.
 
@@ -70,7 +66,7 @@ After applying the recursive bin partitioning based on Chi-Square testing mentio
 
 The downside of less granular variable discretization is the inevitable reduction of information value of original variables.
 
-However, compared with many binning techniques widely utilized in the industry (such as monotonic binning), this binning method has shown to retain much higher information value of the original variable. 
+However, compared with some other binning techniques widely utilized in the industry (such as monotonic binning), this binning method has shown to retain much higher information value of the original variable. 
 
 The graph below shows the information value of top 15 attributes' with 20-quantile equal bins (original_IV) vs. with optimized bins (updated_IV).
 
