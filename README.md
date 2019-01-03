@@ -20,28 +20,28 @@ For demonstration purpose, below is an example of using open source dataset from
 ### Preliminary top feature binning result (20-quantiles)
 
 
-| var_name     | lower_bound | higher_bound | WOE   | overall_IV |
-|--------------|-------------|--------------|-------|------------|
-| EXT_SOURCE_3 | NULL        | NULL         | 1.169 | 0.42       |
-| EXT_SOURCE_3 | 0.001       | 0.155        | 3.469 | 0.42       |
-| EXT_SOURCE_3 | 0.155       | 0.228        | 2.272 | 0.42       |
-| EXT_SOURCE_3 | 0.228       | 0.284        | 1.826 | 0.42       |
-| EXT_SOURCE_3 | 0.284       | 0.33         | 1.544 | 0.42       |
-| EXT_SOURCE_3 | 0.33        | 0.371        | 1.233 | 0.42       |
-| EXT_SOURCE_3 | 0.371       | 0.408        | 1.168 | 0.42       |
-| EXT_SOURCE_3 | 0.408       | 0.442        | 1.028 | 0.42       |
-| EXT_SOURCE_3 | 0.442       | 0.476        | 0.97  | 0.42       |
-| EXT_SOURCE_3 | 0.476       | 0.506        | 0.814 | 0.42       |
-| EXT_SOURCE_3 | 0.506       | 0.535        | 0.697 | 0.42       |
-| EXT_SOURCE_3 | 0.535       | 0.564        | 0.694 | 0.42       |
-| EXT_SOURCE_3 | 0.564       | 0.592        | 0.593 | 0.42       |
-| EXT_SOURCE_3 | 0.592       | 0.618        | 0.615 | 0.42       |
-| EXT_SOURCE_3 | 0.618       | 0.643        | 0.531 | 0.42       |
-| EXT_SOURCE_3 | 0.643       | 0.669        | 0.515 | 0.42       |
-| EXT_SOURCE_3 | 0.669       | 0.694        | 0.496 | 0.42       |
-| EXT_SOURCE_3 | 0.694       | 0.719        | 0.441 | 0.42       |
-| EXT_SOURCE_3 | 0.719       | 0.749        | 0.396 | 0.42       |
-| EXT_SOURCE_3 | 0.749       | 0.786        | 0.381 | 0.42       |
+| var_name     | WOE    | lower_bound | higher_bound | overall_IV |
+|--------------|--------|-------------|--------------|------------|
+| EXT_SOURCE_3 | 1.244  | 0.001       | 0.155        | 0.337      |
+| EXT_SOURCE_3 | 0.821  | 0.155       | 0.228        | 0.337      |
+| EXT_SOURCE_3 | 0.602  | 0.228       | 0.284        | 0.337      |
+| EXT_SOURCE_3 | 0.435  | 0.284       | 0.330        | 0.337      |
+| EXT_SOURCE_3 | 0.210  | 0.330       | 0.371        | 0.337      |
+| EXT_SOURCE_3 | 0.155  | 0.371       | 0.408        | 0.337      |
+| EXT_SOURCE_3 | 0.028  | 0.408       | 0.442        | 0.337      |
+| EXT_SOURCE_3 | -0.031 | 0.442       | 0.476        | 0.337      |
+| EXT_SOURCE_3 | -0.206 | 0.476       | 0.506        | 0.337      |
+| EXT_SOURCE_3 | -0.361 | 0.506       | 0.535        | 0.337      |
+| EXT_SOURCE_3 | -0.366 | 0.535       | 0.564        | 0.337      |
+| EXT_SOURCE_3 | -0.523 | 0.564       | 0.592        | 0.337      |
+| EXT_SOURCE_3 | -0.487 | 0.592       | 0.618        | 0.337      |
+| EXT_SOURCE_3 | -0.634 | 0.618       | 0.643        | 0.337      |
+| EXT_SOURCE_3 | -0.664 | 0.643       | 0.669        | 0.337      |
+| EXT_SOURCE_3 | -0.701 | 0.669       | 0.694        | 0.337      |
+| EXT_SOURCE_3 | -0.818 | 0.694       | 0.719        | 0.337      |
+| EXT_SOURCE_3 | -0.926 | 0.719       | 0.749        | 0.337      |
+| EXT_SOURCE_3 | -0.965 | 0.749       | 0.786        | 0.337      |
+| EXT_SOURCE_3 | 0.156  | NULL        | NULL         | 0.337      |
 
 
 However, 20 bins is quite excessive from scorecard building perspective. Meanwhile, some neighboring bins do not have significantly different level of default risk (as measured by probability of default). 
@@ -52,29 +52,53 @@ After applying the recursive bin partitioning based on Chi-Square testing mentio
 
 ### After Chi-squared testing based recursive partitioning (8 bins)
 
-| var_name     | lower_bound | higher_bound | WOE    | overall_IV |
-|--------------|-------------|--------------|--------|------------|
-| EXT_SOURCE_3 | NULL        | NULL         | 0.156  | 0.330      |
-| EXT_SOURCE_3 | 0.001       | 0.228        | 1.046  | 0.330      |
-| EXT_SOURCE_3 | 0.228       | 0.330        | 0.522  | 0.330      |
-| EXT_SOURCE_3 | 0.330       | 0.408        | 0.182  | 0.330      |
-| EXT_SOURCE_3 | 0.408       | 0.476        | -0.003 | 0.330      |
-| EXT_SOURCE_3 | 0.476       | 0.564        | -0.311 | 0.330      |
-| EXT_SOURCE_3 | 0.564       | 0.618        | -0.505 | 0.330      |
-| EXT_SOURCE_3 | 0.618       | 0.694        | -0.666 | 0.330      |
-| EXT_SOURCE_3 | 0.694       | 0.786        | -0.919 | 0.330      |
+| var_name     | WOE    | lower_bound | higher_bound | IV   |
+|--------------|--------|-------------|--------------|------|
+| EXT_SOURCE_3 | 1.046  | 0.001       | 0.228        | 0.33 |
+| EXT_SOURCE_3 | 0.522  | 0.228       | 0.33         | 0.33 |
+| EXT_SOURCE_3 | 0.182  | 0.33        | 0.408        | 0.33 |
+| EXT_SOURCE_3 | -0.003 | 0.408       | 0.476        | 0.33 |
+| EXT_SOURCE_3 | -0.311 | 0.476       | 0.564        | 0.33 |
+| EXT_SOURCE_3 | -0.505 | 0.564       | 0.618        | 0.33 |
+| EXT_SOURCE_3 | -0.666 | 0.618       | 0.694        | 0.33 |
+| EXT_SOURCE_3 | -0.919 | 0.694       | 0.786        | 0.33 |
+| EXT_SOURCE_3 | 0.156  | NULL        | NULL         | 0.33 |
 
 The downside of less granular variable discretization is the inevitable reduction of information value of original variables.
 
-However, compared with some other binning techniques widely utilized in the industry (such as monotonic binning), this binning method has shown to retain much higher information value of the original variable. 
+However, compared with some other binning techniques widely utilized in the industry such as monotonic binning, this binning method has shown to retain much higher information value of the original variable even with reduced bin count. 
+
+Below is the EDA contingency table generated by R smbinning package for EXT_SOURCE_3 variable:
+
+| Cutpoint             | CntRec | CntGood | CntBad | CntCumRec | CntCumGood | CntCumBad | PctRec | BadRate | Odds   | LnOdds  | WoE     | IV     |
+|----------------------|--------|---------|--------|-----------|------------|-----------|--------|---------|--------|---------|---------|--------|
+| <= 0.175605979469379 | 15394  | 3413    | 11981  | 15394     | 3413       | 11981     | 0.0501 | 0.7783  | 0.2849 | -1.2557 | 1.1768  | 0.1119 |
+| <= 0.315472154925773 | 29572  | 4205    | 25367  | 44966     | 7618       | 37348     | 0.0962 | 0.8578  | 0.1658 | -1.7972 | 0.6353  | 0.0506 |
+| <= 0.41184855592424  | 30781  | 2984    | 27797  | 75747     | 10602      | 65145     | 0.1001 | 0.9031  | 0.1073 | -2.2317 | 0.2008  | 0.0044 |
+| <= 0.45789955120673  | 16008  | 1272    | 14736  | 91755     | 11874      | 79881     | 0.0521 | 0.9205  | 0.0863 | -2.4497 | -0.0172 | 0      |
+| <= 0.502878277208218 | 17269  | 1238    | 16031  | 109024    | 13112      | 95912     | 0.0562 | 0.9283  | 0.0772 | -2.561  | -0.1285 | 0.0009 |
+| <= 0.570916541772999 | 29890  | 1733    | 28157  | 138914    | 14845      | 124069    | 0.0972 | 0.942   | 0.0615 | -2.7879 | -0.3555 | 0.0106 |
+| <= 0.636376171086044 | 31549  | 1512    | 30037  | 170463    | 16357      | 154106    | 0.1026 | 0.9521  | 0.0503 | -2.989  | -0.5565 | 0.0252 |
+| <= 0.703203304904032 | 31367  | 1321    | 30046  | 201830    | 17678      | 184152    | 0.102  | 0.9579  | 0.044  | -3.1243 | -0.6919 | 0.0367 |
+| <= 0.89600954949484  | 44716  | 1470    | 43246  | 246546    | 19148      | 227398    | 0.1454 | 0.9671  | 0.034  | -3.3816 | -0.9492 | 0.089  |
+| Missing              | 60965  | 5677    | 55288  | 307511    | 24825      | 282686    | 0.1983 | 0.9069  | 0.1027 | -2.2761 | 0.1564  | 0.0052 |
+| Total                | 307511 | 24825   | 282686 | NA        | NA         | NA        | 1      | 0.9193  | 0.0878 | -2.4325 | 0       | 0.3345 |
 
 The graph below shows the information value of top 15 attributes' with 20-quantile equal bins (original_IV) vs. with optimized bins (updated_IV).
 
-### Comparison of information value before & after binning optimization (Top 15 attributes)
+### Comparison of information value before & after binning optimization (Top 20 attributes)
 
-![alt text](https://raw.githubusercontent.com/jtian24/EDA_Modeling_Spark/master/IV_comparison_plot.png)
+![alt text](https://raw.githubusercontent.com/jtian24/EDA_Modeling_Spark/master/IV_comparison.png)
 
-After all variables were optimally binned and encoded with WoE/mean value, the original dataset in PySpark dataframe was transformed with the a dictionary that maps original value to the WoE/mean value of its corresponding segment.
+
+To confirm the correctness of the WOE binning and information value calculated, I also utilized R package smbinning to calculate the IV for top 10 numerical attributes and compare them with the result that I get:
+
+![alt text](https://raw.githubusercontent.com/jtian24/EDA_Modeling_Spark/master/IV_comparison2.png)
+
+As you can see, my result is mostly inline with the result coming from R package. However, the average time it takes for the PySpark module to calcualte WOE/IV for each variable (with 307511 rows) is only 1.17s, while for the R smbinning package it takes 54s! So the key advantage of this PySPark module is its high efficiency and streamlining of both data preprocessing, feature engineering and statistical modeling all within distributed computing framework. 
+
+After all variables were optimally binned and encoded with WoE/mean value, the original dataset in PySpark dataframe was transformed with the a dictionary that maps original value to the WoE/mean value of its corresponding segment.It only took 71s to transform the original 300K X 123 dataset. 
+
 
 (please reference transform_original_data function for modeling data WoE/Mean Value transformation using PySpark)
 
