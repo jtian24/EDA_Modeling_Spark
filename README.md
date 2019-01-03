@@ -50,7 +50,7 @@ After applying the recursive bin partitioning based on Chi-Square testing mentio
 
 (please reference update_iv_with_new_bin and recursive_var_bin function for recursive bin optimization for logistic regression, update_r_square_with_new_bin and LR_recursive_var_bin function for recursive bin optimization for linear regression)
 
-### After Chi-squared testing based recursive partitioning of original bins (8 bins)
+### After Chi-squared testing based recursive partitioning (8 bins)
 
 | var_name     | lower_bound | higher_bound | WOE    | overall_IV |
 |--------------|-------------|--------------|--------|------------|
