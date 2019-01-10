@@ -133,7 +133,7 @@ class optimal_eda_glm:
 
             else:
 
-                self.df_samp = self.df.select(included_attributes)
+                self.df_samp = self.df
                 self.df_samp_total_cnt = self.df_samp.count()
                 
                 
@@ -197,6 +197,9 @@ class optimal_eda_glm:
             print('datatype dict is : ', self.datatype_dict)
          
 
+        
+        # cap categorical variables to maximum categories of 100, minimum percent represnented to be 95%
+        # self.cap_cat_var_class(0.95, 100)
                                  
         #calculate quantile bins for numerical attributes
         self.stack_columns_bucketization(increment_percent)
